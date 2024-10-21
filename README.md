@@ -14,9 +14,8 @@
 
 # xai-ad-eval
 
-> Add a short description here!
+> Evaluating Explanations of Convolutional Neural Networks for Alzheimer’s Disease Classification
 
-A longer description of your project goes here...
 
 
 <!-- pyscaffold-notes -->
