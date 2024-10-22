@@ -26,14 +26,14 @@ class Conv3DBlock(torch.nn.Module):
 
 
 class ADCNN(L.LightningModule):
-    def __init__(self, n_channels=5, kernel_size=3, n_hidden=64, *args, **kwargs):
+    def __init__(self, n_channels=5, kernel_size=3, n_hidden=64, p=0.1, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # construct arguments
         conv3d_kwargs_input = dict(in_channels=1, out_channels=n_channels, kernel_size=kernel_size, padding="same")
         conv3d_kwargs = dict(in_channels=n_channels, out_channels=n_channels, kernel_size=kernel_size, padding="same")
         pool3d_kwargs = dict(kernel_size=2)
         batchnorm3d_kwargs = dict(num_features=n_channels)
-        dropout3d_kwargs = dict(p=0.5)
+        dropout3d_kwargs = dict(p=0.1)
         # feature extractor
         self.feature_extractor = nn.Sequential(
             Conv3DBlock(conv3d_kwargs_input, pool3d_kwargs, batchnorm3d_kwargs, dropout3d_kwargs),
@@ -48,7 +48,9 @@ class ADCNN(L.LightningModule):
         self.hidden_size = n_channels * 12 * 15 * 12
         self.classifier = nn.Sequential(
             nn.Linear(self.hidden_size, n_hidden),
+            nn.Dropout(p=p),
             nn.Linear(n_hidden, n_hidden),
+            nn.Dropout(p=p),
             nn.Linear(n_hidden, 2)
         )
         # logging metrics

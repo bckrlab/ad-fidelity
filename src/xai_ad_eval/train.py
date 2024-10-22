@@ -31,17 +31,19 @@ def make_transforms(train_files, train_labels):
     tf_test = Compose([tf_process])
     return tf_train, tf_test
 
-def train(train_files, train_labels, test_files, test_labels, n_epochs=50, num_workers=4):
+def train(train_files, train_labels, test_files, test_labels, experiment_name="xai_ad_eval",
+          batch_size=16, n_epochs=50, n_hidden=64, n_channels=5, num_workers=4):
     # load data
     tf_train, tf_test = make_transforms(train_files, train_labels)
     train_ds = NiftiDataset(train_files, train_labels, augment=True, transform=tf_train)
-    train_loader = DataLoader(train_ds, batch_size=64, shuffle=True, num_workers=num_workers)
+    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_ds = NiftiDataset(test_files, test_labels, augment=True, transform=tf_test)
-    test_loader = DataLoader(test_ds, batch_size=64, num_workers=num_workers)
+    test_loader = DataLoader(test_ds, batch_size=batch_size, num_workers=num_workers)
 
-    mlflow.start_run()
-    mlflow_logger = MLFlowLogger()
-    model = ADCNN()
+    mlflow_run = mlflow.start_run()
+    mlflow.log_params(dict(batch_size=batch_size, n_epochs=n_epochs, n_channels=n_channels, n_hidden=n_hidden))
+    mlflow_logger = MLFlowLogger(run_id=mlflow_run.info.run_id)
+    model = ADCNN(n_channels=n_channels, n_hidden=n_hidden)
     trainer = L.Trainer(max_epochs=n_epochs, logger=mlflow_logger, log_every_n_steps=2)
     trainer.fit(model=model, train_dataloaders=train_loader)
     model.eval()
@@ -60,8 +62,12 @@ if __name__ == "__main__":
     parser.add_argument("--cn", type=Path, required=True, help="directory path for Control Normal subjects")
     parser.add_argument("--k", type=int, default=5, help="number of folds")
     parser.add_argument("--epochs", type=int, default=50, help="number of epochs")
-    parser.add_argument("--seed", default=19, help="random seed")
-    parser.add_argument("--num_workers", default=4, help="number of workers for data loaders")
+    parser.add_argument("--seed", type=int, default=19, help="random seed")
+    parser.add_argument("--num_workers", type=int, default=4, help="number of workers for data loaders")
+    parser.add_argument("--experiment", type=str, default="xai_ad_eval", help="experiment name")
+    parser.add_argument("--batch_size", type=int, default=16, help="batch size")
+    parser.add_argument("--n_hidden", type=int, default=64, help="number of hidden nodes in the classification layer")
+    parser.add_argument("--n_channels", type=int, default=5, help="number of channels in the feature extractor")
 
     args = parser.parse_args()
 
@@ -72,12 +78,11 @@ if __name__ == "__main__":
     # search nifti files
     ad_files = list(args.ad.glob("*.nii.gz"))
     cn_files = list(args.cn.glob("*.nii.gz"))
-
     files = np.array(ad_files + cn_files)
     labels = np.array([1] * len(ad_files) + [0] * len(cn_files))
     
     # create a new MLflow Experiment
-    mlflow.set_experiment("xai_ad_eval")
+    mlflow.set_experiment(args.experiment)
     
     # stratified kfold and split
     skf = StratifiedKFold(args.k, shuffle=True, random_state=args.seed)
@@ -85,6 +90,7 @@ if __name__ == "__main__":
     for train_idx, test_idx in skf.split(files, labels):
         train(
             files[train_idx], labels[train_idx], files[test_idx], labels[test_idx],
-            n_epochs=args.epochs, num_workers=args.num_workers
+            n_epochs=args.epochs, num_workers=args.num_workers, experiment_name=args.experiment,
+            batch_size=args.batch_size, n_channels=args.n_channels, n_hidden=args.n_hidden
         )
 
