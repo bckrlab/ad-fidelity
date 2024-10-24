@@ -1,8 +1,16 @@
+"""
+Train models via stratified k-fold.
+"""
+
 import numpy as np
 import lightning as L
 import mlflow
 import argparse
 import torch
+
+# want to use multiprocessing over multithreading due to Global Interpreter Lock (GIL)
+# see multiprocessing vs multithreading vs asyncio
+import multiprocessing as mp
 
 from tqdm import tqdm, trange
 from xai_ad_eval.model import ADCNN
@@ -14,6 +22,17 @@ from torch.utils.data import DataLoader
 from torchvision.transforms.v2 import Compose
 from lightning.pytorch.loggers import MLFlowLogger
 from mlflow.models import infer_signature
+
+def set_seed(seed: int):
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+def get_nifti_files(ad_path: Path, cn_path: Path):
+    ad_files = list(ad_path.glob("*.nii.gz"))
+    cn_files = list(cn_path.glob("*.nii.gz"))
+    file_paths = np.array(ad_files + cn_files)
+    labels = np.array([1] * len(ad_files) + [0] * len(cn_files))
+    return file_paths, labels
 
 def make_transforms(train_files, train_labels):
     vmin, vmax = compute_minmax(train_files)
@@ -46,9 +65,9 @@ def train(train_files, train_labels, test_files, test_labels, experiment_name="x
     model = ADCNN(n_channels=n_channels, n_hidden=n_hidden)
     trainer = L.Trainer(max_epochs=n_epochs, logger=mlflow_logger, log_every_n_steps=2)
     trainer.fit(model=model, train_dataloaders=train_loader)
+    # not really necessary, since lightning already does that
     model.eval()
     trainer.test(model, dataloaders=test_loader)
-    # save model
     # TODO: add signature
     mlflow.pytorch.log_model(model, "model")
     mlflow.end_run()
@@ -68,18 +87,18 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=16, help="batch size")
     parser.add_argument("--n_hidden", type=int, default=64, help="number of hidden nodes in the classification layer")
     parser.add_argument("--n_channels", type=int, default=5, help="number of channels in the feature extractor")
+    parser.add_argument("--parallel", action="store_true", help="run stratified k-fold in parallel")
+    parser.add_argument("--register", action="store_true", help="register model in mlflow")
+    parser.add_argument("--register_name", type=str, default="adcnn", help="model name for registering")
+    parser.add_argument("--preprocess", choices=["center", "center_cn", "standardize", "norm", "flip", "shift"],
+                        nargs="?", help="preprocessing steps")
 
     args = parser.parse_args()
 
     # set rng seed
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
+    set_seed(args.seed)
 
-    # search nifti files
-    ad_files = list(args.ad.glob("*.nii.gz"))
-    cn_files = list(args.cn.glob("*.nii.gz"))
-    files = np.array(ad_files + cn_files)
-    labels = np.array([1] * len(ad_files) + [0] * len(cn_files))
+    file_paths, labels = get_nifti_files(args.ad, args.cn)
     
     # create a new MLflow Experiment
     mlflow.set_experiment(args.experiment)
@@ -87,10 +106,29 @@ if __name__ == "__main__":
     # stratified kfold and split
     skf = StratifiedKFold(args.k, shuffle=True, random_state=args.seed)
 
-    for train_idx, test_idx in skf.split(files, labels):
-        train(
-            files[train_idx], labels[train_idx], files[test_idx], labels[test_idx],
-            n_epochs=args.epochs, num_workers=args.num_workers, experiment_name=args.experiment,
-            batch_size=args.batch_size, n_channels=args.n_channels, n_hidden=args.n_hidden
-        )
+    if args.parallel:
+        pool = mp.Pool(args.k)
+        for train_idx, test_idx in skf.split(file_paths, labels):
+            p_kwargs = dict(
+                train_files=file_paths[train_idx], train_labels=labels[train_idx],
+                test_files=file_paths[test_idx], test_labels=labels[test_idx],
+                n_epochs=args.epochs, num_workers=args.num_workers, experiment_name=args.experiment,
+                batch_size=args.batch_size, n_channels=args.n_channels, n_hidden=args.n_hidden
+            )
+            pool.apply_async(func=train, kwds=p_kwargs)
+            # p = mp.Process(target=train, kwargs=p_kwargs)
+            # procs.append(p)
+        pool.close()
+        pool.join()
+        # for p in procs:
+        #    p.start()
+        #for p in procs:
+        #    p.join()
+    else:
+        for train_idx, test_idx in skf.split(file_paths, labels):
+            train(
+                file_paths[train_idx], labels[train_idx], file_paths[test_idx], labels[test_idx],
+                n_epochs=args.epochs, num_workers=args.num_workers, experiment_name=args.experiment,
+                batch_size=args.batch_size, n_channels=args.n_channels, n_hidden=args.n_hidden
+            )
 
