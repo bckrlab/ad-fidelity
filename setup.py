@@ -1,5 +1,5 @@
 """
-    Setup file for xai-ad-eval.
+    Setup file for ad-deletion.
     Use setup.cfg to configure your project.
 
     This file was generated with PyScaffold 4.5.

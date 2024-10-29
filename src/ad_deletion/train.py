@@ -13,9 +13,9 @@ import torch
 import multiprocessing as mp
 
 from tqdm import tqdm, trange
-from xai_ad_eval.model import ADCNN
-from xai_ad_eval.transforms import BoxCrop, RandomSagittalFlip, MinMaxNorm, Center, RandomTranslation
-from xai_ad_eval.data import NiftiDataset, compute_mean, compute_minmax
+from ad_deletion.model import ADCNN
+from ad_deletion.transforms import BoxCrop, RandomSagittalFlip, MinMaxNorm, Center, RandomTranslation
+from ad_deletion.data import NiftiDataset, compute_mean, compute_minmax
 from sklearn.model_selection import StratifiedKFold
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -50,7 +50,7 @@ def make_transforms(train_files, train_labels):
     tf_test = Compose([tf_process])
     return tf_train, tf_test
 
-def train(train_files, train_labels, test_files, test_labels, experiment_name="xai_ad_eval",
+def train(train_files, train_labels, test_files, test_labels, experiment_name="ad_deletion",
           batch_size=16, n_epochs=50, n_hidden=64, n_channels=5, num_workers=4):
     # load data
     tf_train, tf_test = make_transforms(train_files, train_labels)
@@ -73,6 +73,23 @@ def train(train_files, train_labels, test_files, test_labels, experiment_name="x
     mlflow.end_run()
     return model
 
+def skf_parallel(skf, train_kwargs):
+    pool = mp.Pool(args.k)
+    for train_idx, test_idx in skf.split(file_paths, labels):
+        p_kwargs = dict(
+            train_files=file_paths[train_idx], train_labels=labels[train_idx],
+            test_files=file_paths[test_idx], test_labels=labels[test_idx],
+            n_epochs=args.epochs, num_workers=args.num_workers, experiment_name=args.experiment,
+            batch_size=args.batch_size, n_channels=args.n_channels, n_hidden=args.n_hidden
+        )
+        pool.apply_async(func=train, kwds=p_kwargs)
+        # p = mp.Process(target=train, kwargs=p_kwargs)
+        # procs.append(p)
+    pool.close()
+    pool.join()
+
+def skf_sequential():
+    pass
 
 if __name__ == "__main__":
     # parse cli arguments
@@ -83,7 +100,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=50, help="number of epochs")
     parser.add_argument("--seed", type=int, default=19, help="random seed")
     parser.add_argument("--num_workers", type=int, default=4, help="number of workers for data loaders")
-    parser.add_argument("--experiment", type=str, default="xai_ad_eval", help="experiment name")
+    parser.add_argument("--experiment", type=str, default="ad_deletion", help="experiment name")
     parser.add_argument("--batch_size", type=int, default=16, help="batch size")
     parser.add_argument("--n_hidden", type=int, default=64, help="number of hidden nodes in the classification layer")
     parser.add_argument("--n_channels", type=int, default=5, help="number of channels in the feature extractor")
@@ -91,7 +108,7 @@ if __name__ == "__main__":
     parser.add_argument("--register", action="store_true", help="register model in mlflow")
     parser.add_argument("--register_name", type=str, default="adcnn", help="model name for registering")
     parser.add_argument("--preprocess", choices=["center", "center_cn", "standardize", "norm", "flip", "shift"],
-                        nargs="?", help="preprocessing steps")
+                        nargs="+", help="preprocessing steps")
 
     args = parser.parse_args()
 
@@ -105,6 +122,11 @@ if __name__ == "__main__":
     
     # stratified kfold and split
     skf = StratifiedKFold(args.k, shuffle=True, random_state=args.seed)
+
+    train_kwargs = dict(
+        n_epochs=args.epochs, num_workers=args.num_workers, experiment_name=args.experiment,
+        batch_size=args.batch_size, n_channels=args.n_channels, n_hidden=args.n_hidden
+    )
 
     if args.parallel:
         pool = mp.Pool(args.k)
@@ -120,10 +142,6 @@ if __name__ == "__main__":
             # procs.append(p)
         pool.close()
         pool.join()
-        # for p in procs:
-        #    p.start()
-        #for p in procs:
-        #    p.join()
     else:
         for train_idx, test_idx in skf.split(file_paths, labels):
             train(

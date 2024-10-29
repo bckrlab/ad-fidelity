@@ -1,6 +1,6 @@
 import pytest
 
-from xai_ad_eval.skeleton import fib, main
+from ad_deletion.skeleton import fib, main
 
 __author__ = "Bjarne Hiller"
 __copyright__ = "Bjarne Hiller"

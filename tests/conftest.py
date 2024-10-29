@@ -1,5 +1,5 @@
 """
-    Dummy conftest.py for xai_ad_eval.
+    Dummy conftest.py for ad_deletion.
 
     If you don't know what this is for, just leave it empty.
     Read more about conftest.py under:
