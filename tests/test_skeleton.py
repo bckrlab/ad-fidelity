@@ -1,6 +1,6 @@
 import pytest
 
-from ad_deletion.skeleton import fib, main
+from ad_fidelity.skeleton import fib, main
 
 __author__ = "Bjarne Hiller"
 __copyright__ = "Bjarne Hiller"

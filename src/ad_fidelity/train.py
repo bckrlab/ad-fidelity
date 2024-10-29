@@ -13,9 +13,9 @@ import torch
 import multiprocessing as mp
 
 from tqdm import tqdm, trange
-from ad_deletion.model import ADCNN
-from ad_deletion.transforms import BoxCrop, RandomSagittalFlip, MinMaxNorm, Center, RandomTranslation
-from ad_deletion.data import NiftiDataset, compute_mean, compute_minmax
+from ad_fidelity.model import ADCNN
+from ad_fidelity.transforms import BoxCrop, RandomSagittalFlip, MinMaxNorm, Center, RandomTranslation
+from ad_fidelity.data import NiftiDataset, compute_mean, compute_minmax
 from sklearn.model_selection import StratifiedKFold
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -50,7 +50,7 @@ def make_transforms(train_files, train_labels):
     tf_test = Compose([tf_process])
     return tf_train, tf_test
 
-def train(train_files, train_labels, test_files, test_labels, experiment_name="ad_deletion",
+def train(train_files, train_labels, test_files, test_labels, experiment_name="ad_fidelity",
           batch_size=16, n_epochs=50, n_hidden=64, n_channels=5, num_workers=4):
     # load data
     tf_train, tf_test = make_transforms(train_files, train_labels)
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, default=50, help="number of epochs")
     parser.add_argument("--seed", type=int, default=19, help="random seed")
     parser.add_argument("--num_workers", type=int, default=4, help="number of workers for data loaders")
-    parser.add_argument("--experiment", type=str, default="ad_deletion", help="experiment name")
+    parser.add_argument("--experiment", type=str, default="ad_fidelity", help="experiment name")
     parser.add_argument("--batch_size", type=int, default=16, help="batch size")
     parser.add_argument("--n_hidden", type=int, default=64, help="number of hidden nodes in the classification layer")
     parser.add_argument("--n_channels", type=int, default=5, help="number of channels in the feature extractor")

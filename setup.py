@@ -1,5 +1,5 @@
 """
-    Setup file for ad-deletion.
+    Setup file for ad-fidelity.
     Use setup.cfg to configure your project.
 
     This file was generated with PyScaffold 4.5.
