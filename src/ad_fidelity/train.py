@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
 Train models via stratified k-fold.
 """
@@ -17,13 +19,14 @@ import torch.multiprocessing as mp
 from tqdm import tqdm, trange
 from ad_fidelity.model import ADCNN
 from ad_fidelity.transforms import BoxCrop, RandomSagittalFlip, MinMaxNorm, Center, RandomTranslation
-from ad_fidelity.data import NiftiDataset, compute_mean, compute_minmax, get_nifti_files
+from ad_fidelity.data import NiftiDataset, get_nifti_files, train_test_datasets
 from sklearn.model_selection import StratifiedKFold
 from pathlib import Path
 from torch.utils.data import DataLoader
 from torchvision.transforms.v2 import Compose
 from lightning.pytorch.loggers import MLFlowLogger
 from mlflow.models import infer_signature
+from sklearn.metrics import RocCurveDisplay
 
 
 class Training:  
@@ -40,24 +43,6 @@ class Training:
         np.random.seed(seed)
         torch.manual_seed(seed)
 
-    def make_transforms(self, train_files, train_labels):
-        #TODO: Phase out into data loader
-        print("making transforms")
-        vmin, vmax = compute_minmax(train_files)
-        mu_cn = compute_mean(train_files[train_labels == 0])
-        mu_cn_normed = (mu_cn - vmin) / (vmax - vmin)
-
-        tf_crop = BoxCrop(lower=[10, 13, 5], upper=[110, 133, 105])
-        tf_norm = MinMaxNorm(vmin, vmax)
-        tf_center = Center(mu_cn_normed)
-        tf_process = Compose([tf_norm, tf_center, tf_crop])
-        tf_flip = RandomSagittalFlip()
-        tf_shift = RandomTranslation(shift=5, pad=0)
-        tf_augment = Compose([tf_flip, tf_shift])
-        tf_train = Compose([tf_augment, tf_process])
-        tf_test = Compose([tf_process])
-        return tf_train, tf_test
-
     def split2dict(self, train_files, train_labels, test_files, test_labels):
         """Returns train-test-split as dictionary."""
         split = {
@@ -70,34 +55,41 @@ class Training:
 
     def train(self, train_files, train_labels, test_files, test_labels, run_name=None):
         """One model training run."""
-        # load data
-        try:
-            mlflow.set_experiment(self.args.experiment)
-            tf_train, tf_test = self.make_transforms(train_files, train_labels)
-            train_ds = NiftiDataset(train_files, train_labels, augment=True, transform=tf_train)
-            train_loader = DataLoader(train_ds, batch_size=self.args.batch_size, shuffle=True, num_workers=self.args.num_workers)
-            test_ds = NiftiDataset(test_files, test_labels, augment=True, transform=tf_test)
-            test_loader = DataLoader(test_ds, batch_size=self.args.batch_size, num_workers=self.args.num_workers)
+        mlflow.set_experiment(self.args.experiment)
+        train_ds, test_ds = train_test_datasets(train_files, train_labels, test_files, test_labels)
+        print(train_ds.samples.shape, train_ds.labels.shape)
+        print(test_ds.samples.shape, test_ds.labels.shape)
+        train_loader = DataLoader(train_ds, batch_size=self.args.batch_size, shuffle=True, persistent_workers=self.args.persistent_workers, num_workers=self.args.num_workers)
+        test_loader = DataLoader(test_ds, batch_size=self.args.batch_size, persistent_workers=self.args.persistent_workers, num_workers=self.args.num_workers)
 
-            mlflow_run = mlflow.start_run(run_name=run_name)
-            split_dict = self.split2dict(train_files, train_labels, test_files, test_labels)
-            mlflow.log_dict(split_dict, "split.json")
-            mlflow.log_params(dict(batch_size=self.args.batch_size, n_epochs=self.args.epochs, n_channels=self.args.n_channels, n_hidden=self.args.n_hidden))
+        mlflow_run = mlflow.start_run(run_name=run_name)
+        split_dict = self.split2dict(train_files, train_labels, test_files, test_labels)
+        mlflow.log_dict(split_dict, "split.json")
+        mlflow.log_params(dict(batch_size=self.args.batch_size, n_epochs=self.args.epochs, n_channels=self.args.n_channels, n_hidden=self.args.n_hidden))
 
-            mlflow_logger = MLFlowLogger(run_id=mlflow_run.info.run_id)
-            model = ADCNN(n_channels=self.args.n_channels, n_hidden=self.args.n_hidden)
-            trainer = L.Trainer(max_epochs=self.args.epochs, logger=mlflow_logger, log_every_n_steps=2, check_val_every_n_epoch=5)
-            trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=test_loader)
+        mlflow_logger = MLFlowLogger(run_id=mlflow_run.info.run_id)
+        model = ADCNN(n_channels=self.args.n_channels, n_hidden=self.args.n_hidden)
+        trainer = L.Trainer(max_epochs=self.args.epochs, logger=mlflow_logger, log_every_n_steps=2, check_val_every_n_epoch=5)
+        trainer.fit(model=model, train_dataloaders=train_loader, val_dataloaders=test_loader)
 
-            # not really necessary, since lightning already does that
-            model.eval()
-            trainer.test(model, dataloaders=test_loader)
-            # TODO: add signature
-            mlflow.pytorch.log_model(model, "model")
-            mlflow.end_run()
-            return model
-        except Exception as e:
-            print(e)
+        # not really necessary, since lightning already does that
+        trainer.test(model, dataloaders=test_loader)
+        auroc_display = RocCurveDisplay.from_predictions(model.test_labels, model.test_predictions[:,1], plot_chance_level=True)
+        mlflow.log_figure(auroc_display.figure_, "auroc.png") 
+        # TODO: add signature
+        mlflow.pytorch.log_model(model, "model")
+        mlflow.end_run() 
+        return model
+    
+    def auroc_curve(self, model, dataset):
+        predictions = []
+        labels = []
+        with torch.no_grad():
+            for x, y in tqdm(dataset):
+                y_hat = model(x).clone().detach()
+                predictions.append(y_hat)
+                labels.append(y)
+            RocCurveDisplay.from_predictions(labels, predictions)
 
 
     def skf(self):
@@ -148,6 +140,7 @@ def parse_train_args():
     parser.add_argument("--epochs", type=int, default=50, help="number of epochs")
     parser.add_argument("--seed", type=int, default=19, help="random seed")
     parser.add_argument("--num-workers", type=int, default=4, help="number of workers for data loaders")
+    parser.add_argument("--persistent-workers", action="store_true", help="make dataloader workers persistent")
     parser.add_argument("--experiment", type=str, default="ad_fidelity", help="experiment name")
     parser.add_argument("--run-name", type=str, default="split", help="base run names")
     parser.add_argument("--batch_size", type=int, default=16, help="batch size")
