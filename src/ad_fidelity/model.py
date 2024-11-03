@@ -26,8 +26,9 @@ class Conv3DBlock(torch.nn.Module):
 
 
 class ADCNN(L.LightningModule):
-    def __init__(self, n_channels=5, kernel_size=3, n_hidden=64, p=0.1, *args, **kwargs):
+    def __init__(self, n_channels=5, kernel_size=3, n_hidden=64, p=0.1, lr=1e-4, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.lr = lr
         # construct arguments
         conv3d_kwargs_input = dict(in_channels=1, out_channels=n_channels, kernel_size=kernel_size, padding="same")
         conv3d_kwargs = dict(in_channels=n_channels, out_channels=n_channels, kernel_size=kernel_size, padding="same")
@@ -48,8 +49,10 @@ class ADCNN(L.LightningModule):
         self.hidden_size = n_channels * 12 * 15 * 12
         self.classifier = nn.Sequential(
             nn.Linear(self.hidden_size, n_hidden),
+            nn.ReLU(),
             nn.Dropout(p=p),
             nn.Linear(n_hidden, n_hidden),
+            nn.ReLU(),
             nn.Dropout(p=p),
             nn.Linear(n_hidden, 2)
         )
@@ -70,7 +73,7 @@ class ADCNN(L.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr)
         return optimizer
     
     def training_step(self, batch, batch_idx):

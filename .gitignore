@@ -1,5 +1,6 @@
 mlruns/
 setup-ssh.sh
+runs.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

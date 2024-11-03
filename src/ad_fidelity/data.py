@@ -14,6 +14,14 @@ from torchvision.transforms.v2 import Compose, GaussianNoise
 
 # TODO: implement lazy loading of ADNI files (slower, but requires way less RAM)
 
+# adni nifti image affine
+AFFINE = torch.tensor([
+    [  -1.5,    0.,     0.,    90. ],
+    [   0.,     1.5,    0.,  -126. ],
+    [   0.,     0.,     1.5,  -72. ],
+    [   0.,     0.,     0.,     1. ],
+])
+
 def train_test_datasets(train_files, train_labels, test_files, test_labels):
     """Setup Train and Test Datasets."""
     train_ds = NiftiDataset(train_files, train_labels, augment=True)
