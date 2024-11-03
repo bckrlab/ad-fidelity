@@ -90,12 +90,12 @@ class ADCNN(L.LightningModule):
     def on_test_epoch_end(self):
         self.log("test_acc", self.test_acc)
         
-    def val_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self.forward(x)
         preds = torch.argmax(F.softmax(y_hat, dim=1), dim=1)
         self.val_acc(preds, y)
 
-    def on_val_epoch_end(self):
+    def on_validation_epoch_end(self):
         self.log("val_acc", self.val_acc)
 

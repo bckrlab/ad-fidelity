@@ -1,6 +1,8 @@
 import nibabel as nib
 import torch
+import numpy as np
 
+from pathlib import Path
 from tqdm import tqdm, trange
 from torch.utils.data import Dataset
 
@@ -72,3 +74,10 @@ def compute_minmax(file_paths):
         vmin = min(vmin, x.min())
         vmax = max(vmax, x.max())
     return vmin, vmax
+
+def get_nifti_files(ad_path: Path, cn_path: Path):
+    ad_files = list(ad_path.glob("*.nii.gz"))
+    cn_files = list(cn_path.glob("*.nii.gz"))
+    file_paths = np.array(ad_files + cn_files)
+    labels = np.array([1] * len(ad_files) + [0] * len(cn_files))
+    return file_paths, labels
