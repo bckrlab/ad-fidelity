@@ -1,9 +1,18 @@
+#!/usr/bin/env python
+
+"""
+Compute the Fidelity Metric
+"""
+
+import argparse
 import torch
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm, trange
 from torch.types import Tensor
 from typing import Union
+from pathlib import Path
+from ad_fidelity.utils import set_seed, MLFModelLogger, MLFAttributionLogger, MLFSplitLogger
 
 def mask_topk(x: Tensor, attributions: Tensor, k: int, mask: Union[Tensor, float]=0):
     """Mask inputs with top-k relevance according to attributions."""
@@ -74,3 +83,54 @@ class FidelityMetric:
                 y = self.model(z)
             scores[i] = y[target]
         return FidelityResult(masked_rel, masked_abs, scores)
+
+
+class MLFRunFidelity:
+    """Computes mean test fidelity of attributions for one mlflow run."""
+
+    def __init__(self, run_id):
+        self.run_id = run_id
+        model_logger = MLFModelLogger(self.run_id)
+        self.model = model_logger.load_model()
+        split_logger = MLFSplitLogger(self.run_id)
+        self.test_ds, self.train_ds = split_logger.load_split()
+        self.attribution_logger = MLFAttributionLogger(self.run_id)
+    
+    def compute_fidelity(self, model, label, target, attribution):
+        metric = FidelityMetric(model)
+        Z = self.attribution_logger.load_attributions(attribution, target)
+        fids = []
+        for i, (x, y) in enumerate(self.test_ds):
+            if y != label:
+                continue
+            else:
+                z = Z[i]
+                mask = torch.zeros_like(x)
+                fid = metric.compute(x, z, mask, target, max_masked=0.05)
+                fids.append(fid)
+        scores = [fid.scores for fid in fids]
+        aucs = [fid.area_under_curve() for fid in fids]
+        mean_scores = torch.stack(scores).mean(0)
+        return dict(scores=mean_scores, aucs=aucs)
+    
+
+# for each run
+# load model and data and attributions
+# for each ad sample in dataset
+# compute fidelity metric for each attribution map
+# 
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--seed", type=int, default=19, help="random seed")
+    parser.add_argument("-i", "--run-ids", type=Path, help="json file that contains the run_ids", required=True)
+    parser.add_argument("--attribution", choices=ATTRIBUTIONS, default=ATTRIBUTIONS)
+
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    set_seed(args.seed)
+

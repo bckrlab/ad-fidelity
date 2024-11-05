@@ -17,10 +17,9 @@ import json
 #import multiprocessing as mp
 import torch.multiprocessing as mp
 
-from tqdm import tqdm, trange
 from ad_fidelity.model import ADCNN
-from ad_fidelity.transforms import BoxCrop, RandomSagittalFlip, MinMaxNorm, Center, RandomTranslation
-from ad_fidelity.data import NiftiDataset, get_nifti_files, train_test_datasets
+from ad_fidelity.data import get_nifti_files, train_test_datasets
+from ad_fidelity.utils import set_seed, MLFSplitLogger, MLFModelLogger
 from sklearn.model_selection import StratifiedKFold
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -45,16 +44,6 @@ class Training:
         np.random.seed(seed)
         torch.manual_seed(seed)
 
-    def split2dict(self, train_files, train_labels, test_files, test_labels):
-        """Returns train-test-split as dictionary."""
-        split = {
-            "train_files": train_files.astype(str).tolist(),
-            "train_labels": train_labels.tolist(),
-            "test_files": test_files.astype(str).tolist(),
-            "test_labels": test_labels.tolist()
-        }
-        return split
-    
     def get_train_kwargs(self, i, train_idx, test_idx):
         """Returns key word arguments for calling train."""
         train_kwargs = dict(
@@ -72,8 +61,8 @@ class Training:
         test_loader = DataLoader(test_ds, batch_size=self.args.batch_size, persistent_workers=self.args.persistent_workers, num_workers=self.args.num_workers)
 
         mlflow_run = mlflow.start_run(run_name=run_name)
-        split_dict = self.split2dict(train_files, train_labels, test_files, test_labels)
-        mlflow.log_dict(split_dict, "split.json")
+        split_logger = MLFSplitLogger(mlflow_run.info.run_id)
+        split_logger.log_split(train_files, train_labels, test_files, test_labels)
         mlflow.log_params(dict(batch_size=self.args.batch_size, n_epochs=self.args.epochs, lr=self.args.lr,
                                n_channels=self.args.n_channels, n_hidden=self.args.n_hidden))
 
@@ -86,7 +75,8 @@ class Training:
         auroc_display = RocCurveDisplay.from_predictions(model.test_labels, model.test_predictions[:,1], plot_chance_level=True)
         mlflow.log_figure(auroc_display.figure_, "auroc.png") 
         # TODO: add signature
-        mlflow.pytorch.log_model(model, "model")
+        model_logger = MLFModelLogger(mlflow_run.info.run_id)
+        model_logger.log_model(model)
         mlflow.end_run() 
         return dict(run_id=mlflow_run.info.run_id)
 
@@ -172,6 +162,7 @@ def parse_train_args():
 if __name__ == "__main__":
     args = parse_train_args()
 
+    set_seed(args.seed)
     mp.set_start_method("spawn")
 
     training = Training(args)
