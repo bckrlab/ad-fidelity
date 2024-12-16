@@ -14,10 +14,12 @@ import torchmetrics
 import torchmetrics.classification
 
 from ad_fidelity.data import train_test_datasets
-from ad_fidelity.utils import set_seed, MLFAttributionLogger, MLFModelLogger, MLFSplitLogger
+from ad_fidelity.logging import MLFAttributionLogger, MLFModelLogger, MLFSplitLogger
 from pathlib import Path
 from collections import namedtuple
 from tqdm import tqdm, trange
+
+from ad_fidelity.utils import set_seed
 
 """
 Compute attribution maps for trained model via captum.

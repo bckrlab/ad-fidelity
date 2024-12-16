@@ -12,7 +12,8 @@ from tqdm import tqdm, trange
 from torch.types import Tensor
 from typing import Union
 from pathlib import Path
-from ad_fidelity.utils import set_seed, MLFModelLogger, MLFAttributionLogger, MLFSplitLogger
+from ad_fidelity.logging import MLFModelLogger, MLFAttributionLogger, MLFSplitLogger
+from ad_fidelity.utils import set_seed
 
 def mask_topk(x: Tensor, attributions: Tensor, k: int, mask: Union[Tensor, float]=0):
     """Mask inputs with top-k relevance according to attributions."""

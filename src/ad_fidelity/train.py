@@ -14,19 +14,20 @@ import json
 
 # want to use multiprocessing over multithreading due to Global Interpreter Lock (GIL)
 # see multiprocessing vs multithreading vs asyncio
-#import multiprocessing as mp
+# import multiprocessing as mp
+# torch.multiprocessing wraps around regular multiprocessing
 import torch.multiprocessing as mp
 
 from ad_fidelity.model import ADCNN
 from ad_fidelity.data import get_nifti_files, train_test_datasets
-from ad_fidelity.utils import set_seed, MLFSplitLogger, MLFModelLogger
+from ad_fidelity.logging import MLFSplitLogger, MLFModelLogger
 from sklearn.model_selection import StratifiedKFold
 from pathlib import Path
 from torch.utils.data import DataLoader
-from torchvision.transforms.v2 import Compose
 from lightning.pytorch.loggers import MLFlowLogger
 from mlflow.models import infer_signature
 from sklearn.metrics import RocCurveDisplay
+from ad_fidelity.utils import set_seed
 
 
 class Training:  

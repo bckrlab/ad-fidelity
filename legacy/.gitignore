@@ -1,0 +1,5 @@
+data/*
+models/*
+!models/README.md
+figures/*
+!figures/README.md
