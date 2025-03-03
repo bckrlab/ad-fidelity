@@ -1,0 +1,117 @@
+\documentclass[aspectratio=169]{beamer}
+
+%\usepackage{graphics}
+\usepackage{svg}
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+% modern minimalist latex theme
+\usetheme{metropolis}
+
+% fill blocks with background color
+\metroset{block=fill}
+
+% footer
+\setbeamertemplate{frame footer}{\insertshortauthor~(\insertshortinstitute)\hfill\insertshorttitle\hfill}
+%\setbeamertemplate{frame footer}{\insertshortauthor~(\insertshortinstitute)}
+
+
+\title[Fidelity of Explanations for AD Classification from MRI]{Evaluating the Fidelity of Explanations for Convolutional Neural Networks in Alzheimer’s Disease Detection}
+
+\author[Hiller]{Bjarne C. Hiller}
+\date{2025-03-09}
+\institute[Uni Rostock]{University of Rostock}
+
+%\logo{\includegraphics[height=0.5cm]{logos/logo-uni-hro}}
+
+\titlegraphic{
+    \includegraphics[height=1cm]{logos/logo-uni-hro}\hfill
+    \includegraphics[height=1cm]{logos/logo-vac}
+	%\includegraphics{logos/logo-dzne}
+}
+
+\begin{document}
+
+\maketitle
+
+% \begin{frame}{Agenda}
+% 	\tableofcontents
+% \end{frame}
+
+%
+\begin{frame}{Who are we?}
+	% introduce Martin Becker, Martin Dyrba, and Me
+	\begin{block}{University of Rostock: Institute for Visual and Analytic Computing}
+		\begin{tabularx}{\textwidth}{XXX}
+			Bjarne C. Hiller & Martin Becker & Thomas Kirste \\
+		\end{tabularx}
+		% 		\begin{itemize}
+		% 			\item Bjarne C. Hiller, MSc
+		% 			\item Jun.-Prof. Dr. Martin Becker
+		% 			\item Prof. Dr.-Ing. Thomas Kirste
+		% 		\end{itemize}
+	\end{block}
+
+	\begin{block}{German Center for Neurodegenerative Diseases (DZNE)}
+		\begin{itemize}
+			\item Devesh Singh, MSc
+			\item Dr. Martin Dyrba
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Deep Learning for Medical Image processing}
+	% introduce deep learning and XAI
+	% - want to analyse MRI from AD subjects
+	% - Deep Learning powerful for image processing, expert level performance
+	% - however, Black Box systems
+	% - Can we trust prediction?
+\end{frame}
+
+\begin{frame}{Data}
+	% - ADNI data set overview
+	% - preprocessing
+\end{frame}
+
+\begin{frame}{Model}
+
+\end{frame}
+
+\begin{frame}{eXplainable AI and Feature Attribution Methods}
+	% - explain overall principle of feature attribution methods
+	% - plethora of feature attribution methods
+	% - Can we trust *explanation*?
+	% - "Not sure, if model is broken, or explanation is wrong"
+\end{frame}
+
+\begin{frame}
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{figures/fry-and-xai.jpg}
+	\end{center}
+\end{frame}
+
+\begin{frame}{Perturbation Tests: Insertion and Deletion}
+	% introduce perturbation tests
+\end{frame}
+
+\begin{frame}{Attribution Maps}
+
+\end{frame}
+
+\begin{frame}{Relevance per ROI}
+
+\end{frame}
+
+\begin{frame}{results}
+	% results perturbation test
+\end{frame}
+
+\begin{frame}{Take-Away}
+	\begin{enumerate}
+		\item Perturbation tests offer a model-agnostic fidelity metric.
+		\item The baseline should be chosen carefully w.r.t. to context.
+		\item Attribution Maps need interpretation to actually explain anything.
+	\end{enumerate}
+\end{frame}
+
+\end{document}
