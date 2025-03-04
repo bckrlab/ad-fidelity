@@ -1,0 +1,48 @@
+\begin{table}
+	\centering
+	\footnotesize
+	\begin{subtable}{\textwidth}
+		\rowcolors{2}{white}{gray!25}
+		\begin{tabularx}{\textwidth}{lXXXX}
+			\toprule
+			    & Occlusion               & IG                    & DeepLIFT              & DeepSHAP        \\
+			\midrule
+			1.  & Precuneus\_L            & Temporal\_Mid\_L      & Temporal\_Mid\_L      & Calcarine\_L    \\
+			2.  & Precuneus\_R            & Temporal\_Mid\_R      & Temporal\_Mid\_R      & Precentral\_R   \\
+			3.  & Postcentral\_L          & Temporal\_Inf\_L      & Temporal\_Inf\_L      & Calcarine\_R    \\
+			4.  & Supp\_Motor\_Area\_L    & Precentral\_R         & Precuneus\_R          & Cerebelum\_6\_R \\
+			5.  & Supp\_Motor\_Area\_R    & Postcentral\_L        & Precuneus\_L          & Precentral\_L   \\
+			6.  & Postcentral\_R          & Frontal\_Mid\_L       & Temporal\_Inf\_R      & Lingual\_L      \\
+			7.  & Precentral\_L           & Postcentral\_R        & Parietal\_Inf\_L      & Postcentral\_R  \\
+			8.  & Cingulum\_Mid\_R        & \emph{Hippocampus\_L} & Frontal\_Mid\_L       & Postcentral\_L  \\
+			9.  & Frontal\_Sup\_Medial\_L & Temporal\_Inf\_R      & \emph{Hippocampus\_L} & Lingual\_R      \\
+			10. & Cingulum\_Mid\_L        & Parietal\_Inf\_L      & Supp\_Motor\_Area\_R  & Cuneus\_L       \\
+		\end{tabularx}
+		\caption{ROIs sorted by their total attributed relevance}
+	\end{subtable}
+
+	\bigskip
+
+	\begin{subtable}{\textwidth}
+		\rowcolors{2}{white}{gray!25}
+		\begin{tabularx}{\textwidth}{lXXXX}
+			\toprule
+			    & Occlusion              & IG                    & DeepLIFT              & DeepSHAP        \\
+			\midrule
+			1.  & Supp\_Motor\_Area\_L   & \emph{Hippocampus\_L} & \emph{Hippocampus\_L} & Calcarine\_L    \\
+			2.  & Supp\_Motor\_Area\_R   & \emph{Hippocampus\_R} & \emph{Hippocampus\_R} & Calcarine\_R    \\
+			3.  & Rolandic\_Oper\_L      & ParaHippocampal\_R    & Parietal\_Inf\_R      & Vermis\_10      \\
+			4.  & Cingulum\_Mid\_L       & Heschl\_L             & Amygdala\_L           & Vermis\_7       \\
+			5.  & Cingulum\_Mid\_R       & Parietal\_Inf\_L      & ParaHippocampal\_R    & Vermis\_6       \\
+			6.  & Paracentral\_Lobule\_R & Thalamus\_R           & Parietal\_Inf\_L      & Vermis\_9       \\
+			7.  & Precuneus\_L           & Rolandic\_Oper\_L     & Calcarine\_R          & Vermis\_8       \\
+			8.  & Precuneus\_R           & Temporal\_Inf\_L      & Supp\_Motor\_Area\_R  & Cuneus\_R       \\
+			9.  & Heschl\_L              & Temporal\_Mid\_L      & Temporal\_Inf\_L      & Cerebelum\_6\_R \\
+			10. & Frontal\_Med\_Orb\_R   & Supp\_Motor\_Area\_R  & SupraMarginal\_L      & Precentral\_R   \\
+		\end{tabularx}
+		\caption{Nach Relevanz der Hirnregion relativ zu ihrer Größe}
+	\end{subtable}
+
+	\caption{Top $10$ AAL ROIs by mean relevance for class AD}
+	\label{tab:top10}
+\end{table}

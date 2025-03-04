@@ -1,13 +1,24 @@
-\documentclass[aspectratio=169]{beamer}
+\documentclass[aspectratio=169,xcolor={table, dvipsnames}]{beamer}
 
-%\usepackage{graphics}
 \usepackage{svg}
-\usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage{tabularx}
+\usepackage{booktabs}
 \usepackage{tikz}
+\usepackage{standalone}
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{xcolor}
+\usepackage{hyperref}
 
-\usetikzlibrary{positioning, shadows}
+\usepackage[backend=biber]{biblatex}
+
+\addbibresource{2024_ad-fidelity.bib}
+
+\usetikzlibrary{positioning, shadows, fit, backgrounds, overlay-beamer-styles, shapes.arrows}
+
+% make references tiny, so they don't take up much slides
+\renewcommand*{\bibfont}{\tiny}
 
 % modern minimalist latex theme
 \usetheme{metropolis}
@@ -16,9 +27,12 @@
 \metroset{block=fill}
 
 % footer
-\setbeamertemplate{frame footer}{\insertshortauthor~(\insertshortinstitute)\hfill\insertshorttitle\hfill}
+\setbeamertemplate{frame footer}{\href{https://github.com/chillerb}{\insertshortauthor}\hfill\insertshorttitle}
+
 %\setbeamertemplate{frame footer}{\insertshortauthor~(\insertshortinstitute)}
 
+
+\renewcommand{\emph}[1]{\textbf{#1}}
 
 \title[Fidelity of Explanations for AD Classification from MRI]{Evaluating the Fidelity of Explanations for Convolutional Neural Networks in Alzheimer’s Disease Detection}
 
@@ -29,9 +43,9 @@
 %\logo{\includegraphics[height=0.5cm]{logos/logo-uni-hro}}
 
 \titlegraphic{
-    \includegraphics[height=1cm]{logos/logo-vac}\hfill
-    \includegraphics[height=1cm]{logos/logo-uni-hro}\hfill
-	\includegraphics[height=1cm]{logos/logo-dzne}
+    \href{https://vac.uni-rostock.de/}{\includegraphics[height=1cm]{logos/logo-vac}}\hfill
+    \href{https://www.uni-rostock.de/}{\includegraphics[height=1cm]{logos/logo-uni-hro}}\hfill
+	\href{https://www.dzne.de/}{\includegraphics[height=1cm]{logos/logo-dzne}}
 }
 
 \begin{document}
@@ -42,67 +56,230 @@
 % 	\tableofcontents
 % \end{frame}
 
-%
-\begin{frame}{Who are we?}
+
+% \begin{frame}{Deep Learning for Medical Image processing}
+% 	% introduce deep learning and XAI
+% 	% - want to analyse MRI from AD subjects
+% 	% - Deep Learning powerful for image processing, expert level performance
+% 	% - however, Black Box systems
+% 	% - Can we trust prediction?
+% \end{frame}
+
+\begin{frame}{Data and Network}
 	\centering
-	\includegraphics[width=\textwidth]{tikz/team.tikz/team.pdf}
+	\begin{block}{Data and Preprocessing}
+		\vfill
+		\begin{itemize}
+			\item $N=443$ ($AD = 189$, $CN=254$) T1-weighted MRI from ADNI database
+			\item Skull Stripping, Gray-matter segmentation, Non-linear registration (MNI)
+		\end{itemize}
+	\end{block}
+	\visible<2->{
+		\begin{tikzpicture}
+			\node [draw, rectangle, fill=white, drop shadow, inner sep=0] (cnn) {\includegraphics[angle=90, width=\textwidth]{tikz/standalone/cnn.tikz/cnn.pdf}};
+		\end{tikzpicture}
+	}
+	\visible<3->{
+		\emph{But can the model be trusted?}
+	}
+
+
+	%	\begin{columns}[T]
+	%		\begin{column}{0.5\textwidth}
+	%			\begin{block}{ADNI Data and Preprocessing}
+	%				\vfill
+	%				\begin{itemize}
+	%					\item $N=443$ ($AD = 189$) T1 MRI
+	%					\item Gray-matter segmentation
+	%					\item Non-linear registration to MNI
+	%				\end{itemize}
+	%			\end{block}
+	%		\end{column}\hfill
+	%		\begin{column}{0.5\textwidth}
+	%			\begin{block}{Problem}
+	%				Can the model be trusted?
+	%				\vfill
+	%			\end{block}
+	%		\end{column}
+	%	\end{columns}
 \end{frame}
 
-\begin{frame}{Deep Learning for Medical Image processing}
-	% introduce deep learning and XAI
-	% - want to analyse MRI from AD subjects
-	% - Deep Learning powerful for image processing, expert level performance
-	% - however, Black Box systems
-	% - Can we trust prediction?
+\begin{frame}{Attribution Maps: What did the network look at?}
+	\begin{figure}
+		\centering
+		\begin{tikzpicture}
+			\node [draw, rectangle, fill=white, drop shadow, inner sep=0] (cnn) {\includegraphics[angle=90, width=\textwidth]{tikz/standalone/cnn.tikz/cnn.pdf}};
+			\visible<2->{
+				\node[draw=red, ultra thick, rectangle, anchor=east, minimum width=1.5cm, minimum height=3cm] (outbox) at (cnn.east) {};
+				%\draw[draw=red, ->, ultra thick] (outbox.south) -- ++ (0, -1) --++ (-10,0) node[midway, below] {\emph{Relevance Propagation}} node[at end] (backprop){};
+				\node[below=0.5cm of cnn.south west, anchor=north west, draw, rectangle, inner sep=0, drop shadow, label=below:relevance map] (attribution) {\includegraphics[height=2cm]{figures/grad-cam-map.png}};
+				\draw[draw=red, ->, ultra thick] (outbox.south) |- (attribution.east) node[midway, below, anchor=north east] {\emph{Propagation of Relevance}};
+			}
+		\end{tikzpicture}
+		%\caption*{Attribution of change in model output to change in model input.}\label{fig:attribution}
+	\end{figure}
 \end{frame}
 
-\begin{frame}{Data}
-	% - ADNI data set overview
-	% - preprocessing
-\end{frame}
-
-\begin{frame}{Model}
+\begin{frame}[plain]{Why should I care?}
 	\centering
-	\includegraphics[angle=90, width=\textwidth]{tikz/cnn.tikz/cnn.pdf}
+	\begin{figure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\begin{tikzpicture}
+				\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
+				\begin{scope}[overlay, visible on=<2->]
+					\draw[<-, red, ultra thick] (tinauer.east) -- ++ (0.5,0) node (pointerstart) {};
+					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,1.5);
+					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,-1.7);
+				\end{scope}
+			\end{tikzpicture}
+			\caption{From: \citeauthor{tinauer_interpretable_2022}~\cite{tinauer_interpretable_2022}}\label{fig:tinauer}
+		\end{subfigure}\hfill
+		\begin{subfigure}[b]{0.7\textwidth}
+			\begin{tikzpicture}
+				\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {
+					\includegraphics[height=5cm, trim={190px 0 0 0}, clip]{figures/zech_2018.png}
+				};
+				\begin{scope}[overlay, visible on=<3->]
+					\node[red, ultra thick, circle, draw, minimum width=2cm] at (-0.9,1.1) {};
+					\node[red, ultra thick, circle, draw, minimum width=2cm] at (4.5,1.5) {};
+				\end{scope}
+			\end{tikzpicture}
+			\caption{From: \citeauthor{zech_variable_2018}~\cite{zech_variable_2018}}\label{fig:zech}
+		\end{subfigure}
+		\caption*{Attribution maps can reveal \emph{shortcut learning}:  Neural Networks can use features outside of the brain parenchyma (\subref{fig:tinauer}) or X-ray side marker tokens (\subref{fig:zech}) for classification.}
+	\end{figure}
+
 \end{frame}
 
-\begin{frame}{eXplainable AI and Feature Attribution Methods}
+\begin{frame}[plain]
+	%{eXplainable AI and Feature Attribution Methods}
 	% - explain overall principle of feature attribution methods
 	% - plethora of feature attribution methods
 	% - Can we trust *explanation*?
 	% - "Not sure, if model is broken, or explanation is wrong"
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.9\textwidth]{figures/overview.png}
+		\caption*{Popular feature attribution methods for Deep Neural Networks and their Relationships}
+	\end{figure}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[plain]
+	\centering
+	\includegraphics[width=0.85\textwidth]{figures/3672-relevance-maps.png}
+\end{frame}
+
+\begin{frame}{Total Relevance per ROI}
+	\input{tables/rois-total.tex}
+\end{frame}
+
+\begin{frame}{Mean Relevance per ROI}
+	\input{tables/rois-mean.tex}
+\end{frame}
+\begin{frame}[plain]
 	\begin{center}
-		\includegraphics[width=0.5\textwidth]{figures/fry-and-xai.jpg}
+		\begin{figure}
+			\href{https://knowyourmeme.com/memes/futurama-fry-not-sure-if}{
+				\includegraphics[width=0.7\textwidth]{figures/fry-and-xai-2.png
+				}}
+			\caption*{But can the \emph{explanation} be trusted?}
+		\end{figure}
+
 	\end{center}
 \end{frame}
 
-\begin{frame}{Perturbation Tests: Insertion and Deletion}
-	% introduce perturbation tests
+
+% \begin{frame}{Perturbation Tests: Insertion and Deletion}
+% 	% introduce perturbation tests
+% 	TODO
+% \end{frame}
+
+
+
+\begin{frame}{AD to CN Perturbation: Using a Null Image as Baseline}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/3672-ad-fidelity-null.png}
+	\end{figure}
 \end{frame}
 
-\begin{frame}{Attribution Maps}
-
+\begin{frame}{AD to CN Perturbation: Using AD mean as Baseline}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\textwidth]{figures/3672-ad-fidelity-cn2.png}
+	\end{figure}
 \end{frame}
 
-\begin{frame}{Relevance per ROI}
+% \begin{frame}{AD to CN Perturbation: Using a CN Mean as Baseline}
+% 	\centering
+% 	\begin{columns}
+% 		\begin{column}{0.5\textwidth}
+% 			\includegraphics[width=\textwidth]{figures/3672-ad-fidelity-null.png}
+% 		\end{column}\hfill
+% 		\visible<2->{
+% 			\begin{column}{0.5\textwidth}
+% 
+% 				\includegraphics[width=\textwidth]{figures/3672-ad-fidelity-cn2.png}
+% 			\end{column}
+% 		}
+% 	\end{columns}
+% \end{frame}
 
-\end{frame}
-
-\begin{frame}{results}
-	% results perturbation test
-\end{frame}
 
 \begin{frame}{Conclusion}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{figure}
+				\centering
+				\includegraphics[width=0.8\textwidth]{figures/3672-ad-fidelity-null.png}
+			\end{figure}
+		\end{column}\hfill
+		\begin{column}{0.5\textwidth}
+			\begin{figure}
+				\centering
+				\includegraphics[width=0.8\textwidth]{figures/3672-ad-fidelity-cn2.png}
+			\end{figure}
+		\end{column}
+	\end{columns}
 	\begin{block}{Take-Aways}
 		\begin{enumerate}
-			\item Perturbation tests offer a model-agnostic fidelity metric.
-			\item The baseline should be chosen carefully w.r.t. to context.
-			\item Attribution Maps need interpretation to actually explain anything.
+			\item<2-> Perturbation tests offer a \emph{model-agnostic fidelity metric}.
+			\item<3-> The \emph{attribution baseline} should be chosen carefully to answer question.
+			\item<4-> Attribution Maps \emph{need interpretation} to actually explain anything.
 		\end{enumerate}
 	\end{block}
+
+	\visible<5->{
+	}
+\end{frame}
+
+\begin{frame}{Meet the Team}
+	\centering
+	%\includegraphics[width=\textwidth]{tikz/standalone/team.tikz/team.pdf}
+	\resizebox{\textwidth}{!}{
+		\input{tikz/input/team.tikz/team}
+	}
+\end{frame}
+
+\begin{frame}{Thanks for your Attention!}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\huge
+			\emph{See you on GitHub!}
+			\href{https://github.com/bckrlab/ad-fidelity}{bckrlab/ad-fidelity}
+		\end{column}\hfill
+		\begin{column}{0.5\textwidth}
+			\begin{figure}
+				\href{https://github.com/bckrlab/ad-fidelity}{\includegraphics[width=0.9\textwidth]{figures/github-qr.png}}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{References}
+	\tiny
+	\printbibliography[heading=none]
 \end{frame}
 
 \end{document}
