@@ -197,17 +197,35 @@
 
 
 
-\begin{frame}{AD to CN Perturbation: Using a Null Image as Baseline}
+\begin{frame}[plain]{}
 	\begin{figure}
-		\centering
-		\includegraphics[width=0.8\textwidth]{figures/3672-ad-fidelity-null.png}
+		\begin{subfigure}{0.8\textwidth}
+			\centering
+			\includegraphics[height=6cm]{figures/3672-ad-fidelity-null.png}
+
+		\end{subfigure}\hfill
+		\begin{subfigure}{0.2\textwidth}
+			\centering
+			\includegraphics[height=6cm]{figures/null_img.png}
+		\end{subfigure}
+		\caption*{Mean Predicted AD Probability when replacing voxels by the null image baseline}
 	\end{figure}
+	\begin{block}{Hypothesis}
+		Null image corresponds to "maximum attrophy".
+	\end{block}
 \end{frame}
 
-\begin{frame}{AD to CN Perturbation: Using AD mean as Baseline}
+\begin{frame}{AD to CN Perturbation: Using the CN mean as Attribution Baseline}
 	\begin{figure}
-		\centering
-		\includegraphics[width=0.8\textwidth]{figures/3672-ad-fidelity-cn2.png}
+		\begin{subfigure}{0.8\textwidth}
+			\centering
+			\includegraphics[height=6cm]{figures/3672-ad-fidelity-cn2.png}
+		\end{subfigure}\hfill
+		\begin{subfigure}{0.2\textwidth}
+			\centering
+			\includegraphics[height=6cm]{figures/cn_mean.png}
+		\end{subfigure}
+		\caption*{Mean Predicted AD Probability when replacing voxels by the CN mean}
 	\end{figure}
 \end{frame}
 
