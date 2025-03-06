@@ -1,10 +1,10 @@
 # TODO
 
 - [] introduction slide
-- [] perturbation methods slide
-- [] CV table
-- [] data slide
-    - [] preprocessing pipeline
+- [] perturbation test slide
+- [x] CV table
+- [x] data slide
+    - [x] preprocessing pipeline
     - [x] voxelwise t-test result
 - [x] include baseline previous for 0 and mean image
 - [x] move team to back
