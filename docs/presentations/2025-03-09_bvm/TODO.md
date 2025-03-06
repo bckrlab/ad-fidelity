@@ -2,6 +2,7 @@
 
 - [] introduction slide
 - [] perturbation test slide
+- [] tikz figure style: white fill, frame, drop shadow
 - [x] CV table
 - [x] data slide
     - [x] preprocessing pipeline

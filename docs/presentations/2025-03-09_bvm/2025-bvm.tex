@@ -10,6 +10,7 @@
 \usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{pgfplots}
 
 \usepackage[backend=biber]{biblatex}
 
@@ -229,10 +230,14 @@
 \end{frame}
 
 
-% \begin{frame}{Perturbation Tests: Insertion and Deletion}
-% 	% introduce perturbation tests
-% 	TODO
-% \end{frame}
+\begin{frame}{Perturbation Tests: Insertion and Deletion}
+	% 	% introduce perturbation tests
+	\begin{figure}
+		\resizebox{0.5\textwidth}{!}{
+			\input{tikz_deletion.tex}
+		}
+	\end{figure}
+\end{frame}
 
 
 
