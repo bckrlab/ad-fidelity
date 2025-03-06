@@ -2,7 +2,11 @@
 
 - [] introduction slide
 - [] perturbation methods slide
-- [] include baseline previous for 0 and mean image
+- [] CV table
+- [] data slide
+    - [] preprocessing pipeline
+    - [x] voxelwise t-test result
+- [x] include baseline previous for 0 and mean image
 - [x] move team to back
 - [x] fix font of standalone includes
 - [x] link team members
