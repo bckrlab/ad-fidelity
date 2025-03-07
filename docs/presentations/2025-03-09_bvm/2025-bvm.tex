@@ -33,6 +33,16 @@
 
 %\setbeamertemplate{frame footer}{\insertshortauthor~(\insertshortinstitute)}
 
+% custom figure style (framed with drop shadow) using tikz
+% alternatively, could use tcolorbox
+\tikzset{dropfigure/.style={draw, rectangle, inner sep=0, drop shadow, fill=white}}
+
+\newcommand{\dropfigure}[2][]{
+	% use baseline to avoid additional vspace around the tikzpicture
+	\begin{tikzpicture}[baseline]
+		\node[dropfigure]{\includegraphics[#1]{#2}};
+	\end{tikzpicture}
+}
 
 \renewcommand{\emph}[1]{\textbf{#1}}
 
@@ -73,7 +83,7 @@
 			\visible<2->{
 				\centering
 				\begin{tikzpicture}
-					\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
+					\node[dropfigure] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
 					\begin{scope}[overlay, visible on=<3->]
 						\draw[<-, red, ultra thick] (tinauer.east) -- ++ (0.5,0) node (pointerstart) {};
 						\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,1.5);
@@ -86,7 +96,7 @@
 		\begin{subfigure}[b]{0.7\textwidth}
 			\visible<4->{
 				\begin{tikzpicture}
-					\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {
+					\node[dropfigure] (tinauer) {
 						\includegraphics[height=5cm, trim={190px 0 0 0}, clip]{figures/zech_2018.png}
 					};
 					\begin{scope}[overlay, visible on=<5->]
@@ -103,7 +113,7 @@
 \end{frame}
 
 \begin{frame}{Data and Preprocessing}
-	\begin{columns}
+	\begin{columns}[onlytextwidth]
 		\begin{column}{0.5\textwidth}
 			\begin{figure}
 				\input{tikz_data.tex}
@@ -118,9 +128,7 @@
 		\end{column}
 		\begin{column}{0.5\textwidth}
 			\begin{figure}
-				\begin{tikzpicture}
-					\node [draw, rectangle, fill=white, drop shadow, inner sep=0] (ttest) {\includegraphics[width=\textwidth]{figures/ttest.png}};
-				\end{tikzpicture}
+				\dropfigure[width=\textwidth]{figures/ttest.png}
 				\caption*{Voxel-wise Welch's $t$-test ($\alpha = 0.01$)}\label{fig:ttest}
 			\end{figure}
 		\end{column}
@@ -215,14 +223,14 @@
 	% - "Not sure, if model is broken, or explanation is wrong"
 	\begin{figure}
 		\centering
-		\includegraphics[width=0.9\textwidth]{figures/overview.png}
+		\dropfigure[width=0.9\textwidth]{figures/overview.png}
 		\caption*{Popular feature attribution methods for Deep Neural Networks and their Relationships}
 	\end{figure}
 \end{frame}
 
 \begin{frame}[plain]
 	\centering
-	\includegraphics[width=0.85\textwidth]{figures/3672-relevance-maps.png}
+	\dropfigure[width=0.85\textwidth]{figures/3672-relevance-maps.png}
 \end{frame}
 
 \begin{frame}{Total Relevance per ROI}
@@ -236,7 +244,7 @@
 	\begin{center}
 		\begin{figure}
 			\href{https://knowyourmeme.com/memes/futurama-fry-not-sure-if}{
-				\includegraphics[width=0.7\textwidth]{figures/fry-and-xai-2.png
+				\dropfigure[width=0.7\textwidth]{figures/fry-and-xai-2.png
 				}}
 			\caption*{But can the \emph{explanation} be trusted?}
 		\end{figure}
@@ -260,12 +268,12 @@
 	\begin{figure}
 		\begin{subfigure}{0.8\textwidth}
 			\centering
-			\includegraphics[height=6cm]{figures/3672-ad-fidelity-null.png}
+			\dropfigure[height=6cm]{figures/3672-ad-fidelity-null.png}
 
 		\end{subfigure}\hfill
 		\begin{subfigure}{0.2\textwidth}
 			\centering
-			\includegraphics[height=6cm]{figures/null_img.png}
+			\dropfigure[height=6cm]{figures/null_img.png}
 		\end{subfigure}
 		\caption*{Mean Predicted AD Probability when replacing voxels by the null image baseline}
 		\visible<2>{
@@ -287,11 +295,11 @@
 	\begin{figure}
 		\begin{subfigure}{0.8\textwidth}
 			\centering
-			\includegraphics[height=6cm]{figures/3672-ad-fidelity-cn2.png}
+			\dropfigure[height=6cm]{figures/3672-ad-fidelity-cn2.png}
 		\end{subfigure}\hfill
 		\begin{subfigure}{0.2\textwidth}
 			\centering
-			\includegraphics[height=6cm]{figures/cn_mean.png}
+			\dropfigure[height=6cm]{figures/cn_mean.png}
 		\end{subfigure}
 		\caption*{Using the \emph{CN mean} as attribution baseline and perturbation target for AD samples}
 		\begin{block}{Question asked by a CN mean baseline}
@@ -317,17 +325,17 @@
 
 
 \begin{frame}{Conclusion}
-	\begin{columns}
+	\begin{columns}[onlytextwidth]
 		\begin{column}{0.5\textwidth}
 			\begin{figure}
 				\centering
-				\includegraphics[width=0.8\textwidth]{figures/3672-ad-fidelity-null.png}
+				\dropfigure[width=0.8\textwidth]{figures/3672-ad-fidelity-null.png}
 			\end{figure}
 		\end{column}\hfill
 		\begin{column}{0.5\textwidth}
 			\begin{figure}
 				\centering
-				\includegraphics[width=0.8\textwidth]{figures/3672-ad-fidelity-cn2.png}
+				\dropfigure[width=0.8\textwidth]{figures/3672-ad-fidelity-cn2.png}
 			\end{figure}
 		\end{column}
 	\end{columns}
@@ -347,7 +355,7 @@
 	\centering
 	%\includegraphics[width=\textwidth]{tikz/standalone/team.tikz/team.pdf}
 	\resizebox{\textwidth}{!}{
-		\input{tikz/input/team.tikz/team}
+		\input{tikz_team.tex}
 	}
 \end{frame}
 

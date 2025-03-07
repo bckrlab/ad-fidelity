@@ -13,32 +13,32 @@
 	\node[portrait, label=below:Thomas Kirste] (kirste) {
 		\href{https://www.mmis.informatik.uni-rostock.de/}{\includegraphics[width=2cm]{figures/team/thomas-kirste.jpg}}};
 
-	\node[portrait, label=below:Sebastian Bader, below=of kirste] (bader) {
-		\href{https://www.mmis.informatik.uni-rostock.de/}{\includegraphics[width=2cm]{figures/team/sebastian-bader.jpg}}
-	};
+	\node[portrait, label={[name=baderlab]below:Sebastian Bader}, below=of kirste] (bader) {
+			\href{https://www.mmis.informatik.uni-rostock.de/}{\includegraphics[width=2cm]{figures/team/sebastian-bader.jpg}}
+		};
 
 	\node[portrait, label=below:Martin Becker, right=of kirste] (becker) {
 		\href{https://bckrlab.org}{\includegraphics[width=2cm]{figures/team/martin-becker.jpg}}
 	};
 
-	\node[portrait, label=below:Bjarne Hiller, below=of becker] (hiller) {
-		\href{https://github.com/chillerb}{\includegraphics[width=2cm]{figures/team/bjarne-hiller.jpg}}
-	};
+	\node[portrait, label={[name=hillerlab]below:Bjarne Hiller}, below=of becker] (hiller) {
+			\href{https://github.com/chillerb}{\includegraphics[width=2cm]{figures/team/bjarne-hiller.jpg}}
+		};
 
 	\begin{scope}[on background layer]
-		\node[fit=(hiller)(kirste), rectangle, fill=Blue!40, inner sep=0.5cm, drop shadow, label=above:University of Rostock] (vac) {};
+		\node[fit=(bader)(baderlab)(hiller)(hillerlab)(kirste), rectangle, fill=Blue!40, inner sep=0.5cm, drop shadow, label=above:University of Rostock] (vac) {};
 	\end{scope}
 
 	\node[portrait, label=below:Martin Dyrba, right=of becker] (dyrba) {
 		\href{https://explaination.net/}{\includegraphics[width=2cm]{figures/team/martin-dyrba.jpg}}
 	};
 
-	\node[portrait, label=below:Devesh Singh, below=of dyrba] (singh) {
-		\href{https://www.linkedin.com/in/deveshsingh0016/}{\includegraphics[width=2cm]{figures/team/devesh-singh.jpg}}
-	};
+	\node[portrait, label={[name=singhlab]below:Devesh Singh}, below=of dyrba] (singh) {
+			\href{https://www.linkedin.com/in/deveshsingh0016/}{\includegraphics[width=2cm]{figures/team/devesh-singh.jpg}}
+		};
 
 	\begin{scope}[on background layer]
-		\node[fit=(dyrba)(singh), fill=Orange!20, rectangle, inner sep=0.5cm, drop shadow, label=above:DZNE] (dzne) {};
+		\node[fit=(dyrba)(singh)(singhlab), fill=Orange!20, rectangle, inner sep=0.5cm, drop shadow, label=above:DZNE] (dzne) {};
 	\end{scope}
 
 	% left=0.5cm of vac.west
