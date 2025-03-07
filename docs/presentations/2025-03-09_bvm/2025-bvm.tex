@@ -11,12 +11,13 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{pgfplots}
+\usepgfplotslibrary{fillbetween}
 
 \usepackage[backend=biber]{biblatex}
 
 \addbibresource{2024_ad-fidelity.bib}
 
-\usetikzlibrary{positioning, shadows, fit, backgrounds, overlay-beamer-styles, shapes.arrows}
+\usetikzlibrary{positioning, shadows, fit, backgrounds, overlay-beamer-styles, shapes.arrows, arrows.meta}
 
 % make references tiny, so they don't take up much slides
 \renewcommand*{\bibfont}{\tiny}
@@ -230,12 +231,12 @@
 \end{frame}
 
 
-\begin{frame}{Perturbation Tests: Insertion and Deletion}
+\begin{frame}[plain]{Perturbation Tests: Insertion and Deletion}
 	% 	% introduce perturbation tests
 	\begin{figure}
-		\resizebox{0.5\textwidth}{!}{
-			\input{tikz_deletion.tex}
-		}
+		%\resizebox{0.5\textwidth}{!}{
+		\input{tikz_deletion.tex}
+		%}
 	\end{figure}
 \end{frame}
 
