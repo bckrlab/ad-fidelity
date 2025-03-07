@@ -70,30 +70,34 @@
 	\centering
 	\begin{figure}
 		\begin{subfigure}[b]{0.3\textwidth}
-			\centering
-			\begin{tikzpicture}
-				\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
-				\begin{scope}[overlay, visible on=<2->]
-					\draw[<-, red, ultra thick] (tinauer.east) -- ++ (0.5,0) node (pointerstart) {};
-					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,1.5);
-					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,-1.7);
-				\end{scope}
-			\end{tikzpicture}
-			\caption{From: \citeauthor{tinauer_interpretable_2022}~\cite{tinauer_interpretable_2022}}\label{fig:tinauer}
+			\visible<2->{
+				\centering
+				\begin{tikzpicture}
+					\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
+					\begin{scope}[overlay, visible on=<3->]
+						\draw[<-, red, ultra thick] (tinauer.east) -- ++ (0.5,0) node (pointerstart) {};
+						\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,1.5);
+						\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,-1.7);
+					\end{scope}
+				\end{tikzpicture}
+				\caption{From: \citeauthor{tinauer_interpretable_2022}~\cite{tinauer_interpretable_2022}}\label{fig:tinauer}
+			}
 		\end{subfigure}\hfill
 		\begin{subfigure}[b]{0.7\textwidth}
-			\begin{tikzpicture}
-				\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {
-					\includegraphics[height=5cm, trim={190px 0 0 0}, clip]{figures/zech_2018.png}
-				};
-				\begin{scope}[overlay, visible on=<3->]
-					\node[red, ultra thick, circle, draw, minimum width=2cm] at (-0.9,1.1) {};
-					\node[red, ultra thick, circle, draw, minimum width=2cm] at (4.5,1.5) {};
-				\end{scope}
-			\end{tikzpicture}
-			\caption{From: \citeauthor{zech_variable_2018}~\cite{zech_variable_2018}}\label{fig:zech}
+			\visible<4->{
+				\begin{tikzpicture}
+					\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {
+						\includegraphics[height=5cm, trim={190px 0 0 0}, clip]{figures/zech_2018.png}
+					};
+					\begin{scope}[overlay, visible on=<5->]
+						\node[red, ultra thick, circle, draw, minimum width=2cm] at (-0.9,1.1) {};
+						\node[red, ultra thick, circle, draw, minimum width=2cm] at (4.5,1.5) {};
+					\end{scope}
+				\end{tikzpicture}
+				\caption{From: \citeauthor{zech_variable_2018}~\cite{zech_variable_2018}}\label{fig:zech}
+			}
 		\end{subfigure}
-		\caption*{Attribution maps can reveal \emph{shortcut learning}:  Neural Networks can use features outside of the brain parenchyma (\subref{fig:tinauer}) or X-ray side marker tokens (\subref{fig:zech}) for classification.}
+		\only<6>{\caption*{Attribution maps can reveal \emph{shortcut learning}:  Neural Networks can use features outside of the brain parenchyma (\subref{fig:tinauer}) or X-ray side marker tokens (\subref{fig:zech}) for classification.}\label{fig:shortcut}}
 	\end{figure}
 
 \end{frame}
@@ -138,7 +142,7 @@
 		\end{tikzpicture}
 	\end{figure}
 	\visible<2->{
-		\begin{columns}[t, onlytextwidth]
+		\begin{columns}[T, onlytextwidth]
 			\begin{column}{0.45\textwidth}
 				\visible<2->{
 					\input{tables/auc_roc.tex}
@@ -264,13 +268,22 @@
 			\includegraphics[height=6cm]{figures/null_img.png}
 		\end{subfigure}
 		\caption*{Mean Predicted AD Probability when replacing voxels by the null image baseline}
+		\visible<2>{
+			\begin{block}{Hypothesis}
+				The null image corresponds to \emph{"maximum atrophy"}.
+			\end{block}
+		}
 	\end{figure}
-	\begin{block}{Hypothesis}
-		Null image corresponds to "maximum attrophy".
-	\end{block}
 \end{frame}
 
-\begin{frame}{AD to CN Perturbation: Using the CN mean as Attribution Baseline}
+% \begin{frame}[overlay]
+% 	\begin{block}{Hypothesis}
+% 		Null image corresponds to "maximum attrophy".
+% 	\end{block}
+% \end{frame}
+
+\begin{frame}[plain]
+	%{AD to CN Perturbation: Using the CN mean as Attribution Baseline}
 	\begin{figure}
 		\begin{subfigure}{0.8\textwidth}
 			\centering
@@ -280,7 +293,10 @@
 			\centering
 			\includegraphics[height=6cm]{figures/cn_mean.png}
 		\end{subfigure}
-		\caption*{Mean Predicted AD Probability when replacing voxels by the CN mean}
+		\caption*{Using the \emph{CN mean} as attribution baseline and perturbation target for AD samples}
+		\begin{block}{Question asked by a CN mean baseline}
+			What caused this sample to be classified as AD - compared to a CN sample?
+		\end{block}
 	\end{figure}
 \end{frame}
 
