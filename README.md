@@ -62,6 +62,7 @@ mv CN data/CN/
 ## Publications
 
 - Presentation at the [German Converence on Medical Image Computing](https://www.bvm-conf.org/) (BVM) 2025 
+     - You can find the slides [here](docs/presentations/2025-03-09_bvm/2025-bvm.pdf)
 - Hiller, Bader, Singh, Kirste, Becker, Dyrba: [*Evaluating the Fidelity of Explanations for Convolutional Neural Networks in Alzheimer’s Disease Detection*](https://doi.org/10.1007/978-3-658-47422-5_18) (2025)
 
 ## Acknowledgements
