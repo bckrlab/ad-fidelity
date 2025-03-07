@@ -58,9 +58,6 @@
 % 	\tableofcontents
 % \end{frame}
 
-\begin{frame}{Motivation}
-
-\end{frame}
 % \begin{frame}{Deep Learning for Medical Image processing}
 % 	% introduce deep learning and XAI
 % 	% - want to analyse MRI from AD subjects
@@ -68,6 +65,39 @@
 % 	% - however, Black Box systems
 % 	% - Can we trust prediction?
 % \end{frame}
+
+\begin{frame}[plain]{Motivation: Can you trust Neural Networks for Medical Image Processing?}
+	\centering
+	\begin{figure}
+		\begin{subfigure}[b]{0.3\textwidth}
+			\centering
+			\begin{tikzpicture}
+				\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
+				\begin{scope}[overlay, visible on=<2->]
+					\draw[<-, red, ultra thick] (tinauer.east) -- ++ (0.5,0) node (pointerstart) {};
+					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,1.5);
+					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,-1.7);
+				\end{scope}
+			\end{tikzpicture}
+			\caption{From: \citeauthor{tinauer_interpretable_2022}~\cite{tinauer_interpretable_2022}}\label{fig:tinauer}
+		\end{subfigure}\hfill
+		\begin{subfigure}[b]{0.7\textwidth}
+			\begin{tikzpicture}
+				\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {
+					\includegraphics[height=5cm, trim={190px 0 0 0}, clip]{figures/zech_2018.png}
+				};
+				\begin{scope}[overlay, visible on=<3->]
+					\node[red, ultra thick, circle, draw, minimum width=2cm] at (-0.9,1.1) {};
+					\node[red, ultra thick, circle, draw, minimum width=2cm] at (4.5,1.5) {};
+				\end{scope}
+			\end{tikzpicture}
+			\caption{From: \citeauthor{zech_variable_2018}~\cite{zech_variable_2018}}\label{fig:zech}
+		\end{subfigure}
+		\caption*{Attribution maps can reveal \emph{shortcut learning}:  Neural Networks can use features outside of the brain parenchyma (\subref{fig:tinauer}) or X-ray side marker tokens (\subref{fig:zech}) for classification.}
+	\end{figure}
+
+\end{frame}
+
 \begin{frame}{Data and Preprocessing}
 	\begin{columns}
 		\begin{column}{0.5\textwidth}
@@ -148,50 +178,30 @@
 \begin{frame}{Attribution Maps: What did the network look at?}
 	\begin{figure}
 		\centering
-		\begin{tikzpicture}
+		\begin{tikzpicture}[>=Stealth]
 			\node [draw, rectangle, fill=white, drop shadow, inner sep=0] (cnn) {\includegraphics[angle=90, width=\textwidth]{tikz/standalone/cnn.tikz/cnn.pdf}};
 			\visible<2->{
 				\node[draw=red, ultra thick, rectangle, anchor=east, minimum width=1.5cm, minimum height=3cm] (outbox) at (cnn.east) {};
 				%\draw[draw=red, ->, ultra thick] (outbox.south) -- ++ (0, -1) --++ (-10,0) node[midway, below] {\emph{Relevance Propagation}} node[at end] (backprop){};
-				\node[below=0.5cm of cnn.south west, anchor=north west, draw, rectangle, inner sep=0, drop shadow, label=below:relevance map] (attribution) {\includegraphics[height=2cm]{figures/grad-cam-map.png}};
-				\draw[draw=red, ->, ultra thick] (outbox.south) |- (attribution.east) node[midway, below, anchor=north east] {\emph{Propagation of Relevance}};
+				\node[below=of cnn.south west, anchor=north west, draw, rectangle, inner sep=0, drop shadow, label=below:attribution map] (attribution) {\includegraphics[height=2cm]{figures/grad-cam-map.png}};
+
+
+				%\path (baseline) -- node[pos=0.9, circle, fill=red] (router) {} (attribution);
+
+				%\draw[draw=red, ->, ultra thick] (outbox.south) -- ++ (0, -0.5cm) -| (router.center) -- (attribution.east);
+				\draw[draw=red, ->, ultra thick] (outbox.south) -- ++ (0, -0.5cm) -| node[pos=0.25, below] {Attribute output changes...} (attribution.north);
+
+			}
+			\visible<3>{
+				\node[label=below:baseline, inner sep=0, draw, rectangle, drop shadow, anchor=east] at (attribution -| outbox.east) (baseline) {\includegraphics[height=2cm]{figures/ad100_slice.png}};
+				\draw[draw=red, ->, ultra thick] (baseline) -- node[midway, below] {...to \emph{relative} input changes} (attribution);
+
 			}
 		\end{tikzpicture}
 		%\caption*{Attribution of change in model output to change in model input.}\label{fig:attribution}
 	\end{figure}
 \end{frame}
 
-\begin{frame}[plain]{Why should I care?}
-	\centering
-	\begin{figure}
-		\begin{subfigure}[b]{0.3\textwidth}
-			\centering
-			\begin{tikzpicture}
-				\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
-				\begin{scope}[overlay, visible on=<2->]
-					\draw[<-, red, ultra thick] (tinauer.east) -- ++ (0.5,0) node (pointerstart) {};
-					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,1.5);
-					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,-1.7);
-				\end{scope}
-			\end{tikzpicture}
-			\caption{From: \citeauthor{tinauer_interpretable_2022}~\cite{tinauer_interpretable_2022}}\label{fig:tinauer}
-		\end{subfigure}\hfill
-		\begin{subfigure}[b]{0.7\textwidth}
-			\begin{tikzpicture}
-				\node[inner sep=0, draw, rectangle, drop shadow] (tinauer) {
-					\includegraphics[height=5cm, trim={190px 0 0 0}, clip]{figures/zech_2018.png}
-				};
-				\begin{scope}[overlay, visible on=<3->]
-					\node[red, ultra thick, circle, draw, minimum width=2cm] at (-0.9,1.1) {};
-					\node[red, ultra thick, circle, draw, minimum width=2cm] at (4.5,1.5) {};
-				\end{scope}
-			\end{tikzpicture}
-			\caption{From: \citeauthor{zech_variable_2018}~\cite{zech_variable_2018}}\label{fig:zech}
-		\end{subfigure}
-		\caption*{Attribution maps can reveal \emph{shortcut learning}:  Neural Networks can use features outside of the brain parenchyma (\subref{fig:tinauer}) or X-ray side marker tokens (\subref{fig:zech}) for classification.}
-	\end{figure}
-
-\end{frame}
 
 \begin{frame}[plain]
 	%{eXplainable AI and Feature Attribution Methods}
@@ -231,7 +241,7 @@
 \end{frame}
 
 
-\begin{frame}[plain]{Perturbation Tests: Insertion and Deletion}
+\begin{frame}[plain]{Perturbation Tests: Insertion and Deletion \cite{petsiuk_rise_2018}}
 	% 	% introduce perturbation tests
 	\begin{figure}
 		%\resizebox{0.5\textwidth}{!}{

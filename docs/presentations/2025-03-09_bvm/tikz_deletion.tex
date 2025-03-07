@@ -137,13 +137,13 @@
 
 		\node[draw, circle, fill, inner sep=1pt, visible on=<4>] at (router) {};
 
-		\node[right=of inputA, imslice, label={[rotate=90, anchor=north, visible on=<4->]right:Attribution}, visible on=<4->] (map) {\includegraphics[height=1.5cm]{figures/ad_slice.png}};
-		\draw[->, visible on=<4>] (router) -- ++ (0,1.5cm) -| (map);
+		\node[right=of inputA, imslice, label={[rotate=90, anchor=north, visible on=<4->]right:Attribution}, visible on=<4->] (map) {\includegraphics[height=1.5cm]{figures/ttest_slice.png}};
+		\draw[->, visible on=<4>] (router.center) -- ++ (0,1.5cm) -| (map);
 
 		% INPUT B
-		\node[right=of modelB, imslice, visible on=<5->] (inputB) {\includegraphics[height=1.5cm]{figures/ad_slice.png}};
+		\node[right=of modelB, imslice, visible on=<5->] (inputB) {\includegraphics[height=1.5cm]{figures/ad23_slice.png}};
 		\draw[->, visible on=<5->] (map) |- node[midway] (router2) {} (inputB);
-		\node[visible on=<5->, label={[rotate=90, align=center, anchor=north]right:{perturbation}}] at (router2) {};
+		\node[visible on=<5->, label={[rotate=90, align=center, anchor=north, visible on=<5->]right:{perturbation}}] at (router2) {};
 		\draw[->, visible on=<5->] (inputA) -- (inputB);
 
 		\draw[->, visible on=<6-7>] (inputB) -- (modelB);
@@ -151,7 +151,7 @@
 
 
 		% INPUT C
-		\node[right=of modelC, imslice, visible on=<8->] (inputC) {\includegraphics[height=1.5cm]{figures/ad_slice.png}};
+		\node[right=of modelC, imslice, visible on=<8->] (inputC) {\includegraphics[height=1.5cm]{figures/ad100_slice.png}};
 
 		\draw[->, visible on=<8->] (map) |- (inputC);
 		\draw[->, visible on=<8->] (inputB) -- (inputC);
