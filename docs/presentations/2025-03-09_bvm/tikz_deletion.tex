@@ -1,0 +1,111 @@
+\documentclass[beamer]{standalone}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+\usetikzlibrary{positioning, shadows, fit, arrows.meta, backgrounds, overlay-beamer-styles}
+
+
+\begin{document}
+\pgfplotsset{delpoint/.style={
+			scatter,
+			thick,
+			mark=o,
+			mark size=5pt,
+			only marks,
+			scatter,
+		}}
+
+% Define style for line plots
+\pgfplotsset{delline/.style={
+			mesh,
+			thick,
+			samples=50
+		}}
+
+\newcommand{\funcDel}[1]{100 * exp(-3 * #1 / 100)}
+\begin{tikzpicture}
+	\pgfmathsetmacro{\pointAx}{0}
+	\pgfmathsetmacro{\pointBx}{23}
+	\pgfmathsetmacro{\pointCx}{100}
+
+	\pgfmathsetmacro{\pointAy}{\funcDel{\pointAx}}
+	\pgfmathsetmacro{\pointBy}{\funcDel{\pointBx}}
+	\pgfmathsetmacro{\pointCy}{\funcDel{\pointCx}}
+	\begin{axis}[
+			title={Deletion},
+			xlabel={Perturbation Amount},
+			ylabel={Predicted Class Probability},
+			axis lines=left,
+			xmin=-10, xmax=110,
+			ymin=-10, ymax=110,
+			xtick={0,100},
+			ytick={0,100},
+			legend pos=north west,
+			%ymajorgrids=true,
+			%grid style=dashed,
+			%yticklabel style={rotate=90}, % Rotate y-axis labels by 45 degrees
+			xticklabel=\pgfmathprintnumber{\tick}\%, % Add % sign to x-axis labels
+			yticklabel=\pgfmathprintnumber{\tick}\%, % Add % sign to y-axis labels
+			colormap={coolwarm}{
+					rgb(0cm)=(0,0,1);
+					rgb(1cm)=(1,0,0);
+				},
+			scatter src=y,
+		]
+
+		% Define a variable
+		%\pgfmathsetmacro{\phi}{3}
+
+		% Define a function
+		%\pgfmathsetmacro{\f}{100 * exp(-\phi * x)}
+
+		\only<1>{
+			\addplot[delpoint]
+			coordinates {
+					(\pointAx, \pointAy)
+				};
+		}
+		\only<2>{
+			\addplot[delpoint]
+			coordinates {
+					(\pointAx, \pointAy)
+					(\pointBx, \pointBy)
+				};
+			\addplot[delline, domain=0:23] {\funcDel{x}};
+		}
+		\only<3>{
+			\addplot[delpoint]
+			coordinates {
+					(\pointAx, \pointAy)
+					(\pointBx, \pointBy)
+					(\pointCx, \pointCy)
+				};
+			\addplot[delline, domain=0:100] {\funcDel{x}};
+		}
+
+
+		\node at (axis cs: \pointAx,\pointAy) (pointA) {};
+		\node at (axis cs: \pointBx,\pointBy) (pointB) {};
+		\node at (axis cs: \pointCx,\pointCy) (pointC) {};
+
+	\end{axis}
+
+	\visible<1->{
+		\node[draw, rectangle] at (pointA -| 10, 0) (inputA) {};
+		%\node[draw, rectangle,right=5cm of pointA] (inputA) {};
+		\draw[->] (inputA) -- (pointA);
+	}
+
+	\visible<2->{
+		\node[draw, rectangle] at (pointB -| 10, 0) (inputB) {};
+		\draw[->] (inputB) -- (pointB);
+	}
+
+	\visible<3->{
+		\node[draw, rectangle] at (pointC -| 10, 0) (inputC) {};
+		\draw[->] (inputC) -- (pointC);
+	}
+
+\end{tikzpicture}
+\end{document}

@@ -10,6 +10,7 @@
 \usepackage{subcaption}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{pgfplots}
 
 \usepackage[backend=biber]{biblatex}
 
@@ -56,7 +57,9 @@
 % 	\tableofcontents
 % \end{frame}
 
+\begin{frame}{Motivation}
 
+\end{frame}
 % \begin{frame}{Deep Learning for Medical Image processing}
 % 	% introduce deep learning and XAI
 % 	% - want to analyse MRI from AD subjects
@@ -64,23 +67,60 @@
 % 	% - however, Black Box systems
 % 	% - Can we trust prediction?
 % \end{frame}
+\begin{frame}{Data and Preprocessing}
+	\begin{columns}
+		\begin{column}{0.5\textwidth}
+			\begin{figure}
+				\input{tikz_data.tex}
+			\end{figure}
+			%			\begin{block}{Data and Preprocessing}
+			%				\vfill
+			%				\begin{itemize}
+			%					\item $N=443$ ($AD = 189$, $CN=254$) T1-weighted MRI from ADNI database
+			%					\item Skull Stripping, Gray-matter segmentation, Non-linear registration (MNI)
+			%				\end{itemize}
+			%			\end{block}
+		\end{column}
+		\begin{column}{0.5\textwidth}
+			\begin{figure}
+				\begin{tikzpicture}
+					\node [draw, rectangle, fill=white, drop shadow, inner sep=0] (ttest) {\includegraphics[width=\textwidth]{figures/ttest.png}};
+				\end{tikzpicture}
+				\caption*{Voxel-wise Welch's $t$-test ($\alpha = 0.01$)}\label{fig:ttest}
+			\end{figure}
+		\end{column}
+	\end{columns}
+\end{frame}
 
-\begin{frame}{Data and Network}
+\begin{frame}{A CNN Model for AD vs CN Classification}
 	\centering
-	\begin{block}{Data and Preprocessing}
-		\vfill
-		\begin{itemize}
-			\item $N=443$ ($AD = 189$, $CN=254$) T1-weighted MRI from ADNI database
-			\item Skull Stripping, Gray-matter segmentation, Non-linear registration (MNI)
-		\end{itemize}
-	\end{block}
-	\visible<2->{
+	% 	\begin{block}{Data and Preprocessing}
+	% 		\vfill
+	% 		\begin{itemize}
+	% 			\item $N=443$ ($AD = 189$, $CN=254$) T1-weighted MRI from ADNI database
+	% 			\item Skull Stripping, Gray-matter segmentation, Non-linear registration (MNI)
+	% 		\end{itemize}
+	% 	\end{block}
+	\begin{figure}
 		\begin{tikzpicture}
 			\node [draw, rectangle, fill=white, drop shadow, inner sep=0] (cnn) {\includegraphics[angle=90, width=\textwidth]{tikz/standalone/cnn.tikz/cnn.pdf}};
 		\end{tikzpicture}
-	}
-	\visible<3->{
-		\emph{But can the model be trusted?}
+	\end{figure}
+	\visible<2->{
+		\begin{columns}[t, onlytextwidth]
+			\begin{column}{0.45\textwidth}
+				\visible<2->{
+					\input{tables/auc_roc.tex}
+				}
+			\end{column}
+			\begin{column}{0.45\textwidth}
+				\visible<3->{
+					\begin{block}{Acceptable Performance...}
+						...but can we \emph{trust} the model?
+					\end{block}
+				}
+			\end{column}
+		\end{columns}
 	}
 
 
@@ -171,11 +211,11 @@
 \end{frame}
 
 \begin{frame}{Total Relevance per ROI}
-	\input{tables/rois-total.tex}
+	\input{tables/rois_total.tex}
 \end{frame}
 
 \begin{frame}{Mean Relevance per ROI}
-	\input{tables/rois-mean.tex}
+	\input{tables/rois_mean.tex}
 \end{frame}
 \begin{frame}[plain]
 	\begin{center}
@@ -190,10 +230,14 @@
 \end{frame}
 
 
-% \begin{frame}{Perturbation Tests: Insertion and Deletion}
-% 	% introduce perturbation tests
-% 	TODO
-% \end{frame}
+\begin{frame}{Perturbation Tests: Insertion and Deletion}
+	% 	% introduce perturbation tests
+	\begin{figure}
+		\resizebox{0.5\textwidth}{!}{
+			\input{tikz_deletion.tex}
+		}
+	\end{figure}
+\end{frame}
 
 
 
