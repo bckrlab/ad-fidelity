@@ -1,5 +1,9 @@
 \documentclass[aspectratio=169,xcolor={table, dvipsnames}]{beamer}
 
+\setbeameroption{hide notes} % Only slides
+%\setbeameroption{show only notes} % Only notes
+%\setbeameroption{show notes on second screen=right} % Both
+
 \usepackage{svg}
 \usepackage{graphicx}
 \usepackage{tabularx}
@@ -48,9 +52,20 @@
 
 \title[Fidelity of Explanations for AD Classification from MRI]{Evaluating the Fidelity of Explanations for Convolutional Neural Networks in Alzheimer’s Disease Detection}
 
-\author[Hiller]{Bjarne C. Hiller}
-\date{2025-03-09}
-\institute[Uni Rostock]{University of Rostock}
+\author[Hiller et al.]{
+	B.~C.~Hiller\inst{1}\and
+	S.~Bader\inst{1}\and
+	D.~Singh\inst{2}\and
+	T.~Kirste\inst{1}\and
+	M.~Becker\inst{1}\and
+	M.~Dyrba\inst{2}
+}
+
+\date{2025-03-10}
+\institute[Uni Rostock]{
+	\inst{1} University of Rostock
+	\inst{2} German Center for Neurodegenerative Diseases (DZNE)
+}
 
 %\logo{\includegraphics[height=0.5cm]{logos/logo-uni-hro}}
 
@@ -75,44 +90,74 @@
 % 	% - however, Black Box systems
 % 	% - Can we trust prediction?
 % \end{frame}
-
-\begin{frame}[plain]{Motivation: Can you trust Neural Networks for Medical Image Processing?}
-	\centering
-	\begin{figure}
-		\begin{subfigure}[b]{0.3\textwidth}
-			\visible<2->{
-				\centering
-				\begin{tikzpicture}
-					\node[dropfigure] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
-					\begin{scope}[overlay, visible on=<3->]
-						\draw[<-, red, ultra thick] (tinauer.east) -- ++ (0.5,0) node (pointerstart) {};
-						\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,1.5);
-						\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,-1.7);
-					\end{scope}
-				\end{tikzpicture}
-				\caption{From: \citeauthor{tinauer_interpretable_2022}~\cite{tinauer_interpretable_2022}}\label{fig:tinauer}
-			}
-		\end{subfigure}\hfill
-		\begin{subfigure}[b]{0.7\textwidth}
-			\visible<4->{
-				\begin{tikzpicture}
-					\node[dropfigure] (tinauer) {
-						\includegraphics[height=5cm, trim={190px 0 0 0}, clip]{figures/zech_2018.png}
-					};
-					\begin{scope}[overlay, visible on=<5->]
-						\node[red, ultra thick, circle, draw, minimum width=2cm] at (-0.9,1.1) {};
-						\node[red, ultra thick, circle, draw, minimum width=2cm] at (4.5,1.5) {};
-					\end{scope}
-				\end{tikzpicture}
-				\caption{From: \citeauthor{zech_variable_2018}~\cite{zech_variable_2018}}\label{fig:zech}
-			}
-		\end{subfigure}
-		\only<6>{\caption*{Attribution maps can reveal \emph{shortcut learning}:  Neural Networks can use features outside of the brain parenchyma (\subref{fig:tinauer}) or X-ray side marker tokens (\subref{fig:zech}) for classification.}\label{fig:shortcut}}
-	\end{figure}
-
+\begin{frame}
+	\begin{block}{In this Talk:}
+		\begin{itemize}
+			\item<2-> A CNN for Alzheimer’s disease detection
+			\item<3-> Can we trust the model?
+			\item<4-> Can we trust the explanation?
+		\end{itemize}
+	\end{block}
 \end{frame}
 
+\begin{frame}[plain]{Motivation: Can you trust Neural Networks for Medical Image Processing?}
+
+	\note{
+		\begin{enumerate}
+			\item Deep Neural Networks have become an essential part of Medical Image Processing
+			\item Tasks: Image Segmentation, Registration, Reconstruction
+			\item Classification: rival / outperform human experts
+			\item Black Box, growing number of parameters
+			\item Can you trust them for medical image processing, if you don't exactly know what's going on?
+			\item AD Classifier: features outside brain parenchyma
+			\item Pneumonia, instead metall anatomic side marker tokens for xray
+		\end{enumerate}
+	}
+
+	\centering
+	\begin{figure}[T]
+		\begin{subfigure}[b]{0.3\textwidth}
+			%\visible<2->{
+			\centering
+			\begin{tikzpicture}
+				\node[dropfigure] (tinauer) {\includegraphics[height=5cm, trim={0 0 1150px 0}, clip]{figures/tinauer_2022.png}};
+				\begin{scope}[overlay, visible on=<2->]
+					\draw[<-, red, ultra thick] (tinauer.east) -- ++ (0.5,0) node (pointerstart) {};
+					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,1.5);
+					\draw[->, red, ultra thick] (pointerstart.center) |- ++ (-0.5,-1.7);
+				\end{scope}
+			\end{tikzpicture}
+			\caption{From: \citeauthor{tinauer_interpretable_2022}~\cite{tinauer_interpretable_2022}}\label{fig:tinauer}
+			%}
+		\end{subfigure}%
+		\hfill
+		\begin{subfigure}[b]{0.7\textwidth}
+			%\visible<4->{
+			\begin{tikzpicture}
+				\node[dropfigure] (tinauer) {
+					\includegraphics[height=5cm, trim={190px 0 0 0}, clip]{figures/zech_2018.png}
+				};
+				\begin{scope}[overlay, visible on=<3->]
+					\node[red, ultra thick, circle, draw, minimum width=2cm] at (-0.9,1.1) {};
+					\node[red, ultra thick, circle, draw, minimum width=2cm] at (4.5,1.5) {};
+				\end{scope}
+			\end{tikzpicture}
+			\caption{From: \citeauthor{zech_variable_2018}~\cite{zech_variable_2018}}\label{fig:zech}
+			%}%
+		\end{subfigure}%
+		\caption*{Attribution maps can reveal \emph{shortcut learning}:  Neural Networks can use features outside of the brain parenchyma (\subref{fig:tinauer}) or X-ray side marker tokens (\subref{fig:zech}) for classification.}\label{fig:shortcut}
+	\end{figure}
+\end{frame}
+
+
 \begin{frame}{Data and Preprocessing}
+	\note{
+		\begin{itemize}
+			\item ADNI: Alzheimer’s Disease Neuro-Initiative
+			\item $t$-test revealed significant differences for signals from the hippocampal regions.
+			\item Hippocampal atrophy is a gold standard biomarker for Alzheimer’s disease diagnosis.
+		\end{itemize}
+	}
 	\begin{columns}[onlytextwidth]
 		\begin{column}{0.5\textwidth}
 			\begin{figure}
@@ -136,6 +181,16 @@
 \end{frame}
 
 \begin{frame}{A CNN Model for AD vs CN Classification}
+	\note{
+		\begin{itemize}
+			\item (Architecture inspired by AlexNet)
+			\item Similar architecture have been used in prior work
+			\item evaluated via 5-fold CV
+			\item achieved acceptable performance
+			\item We were not so much interested in archieving the best performance, but in the trustworthiness of the model
+			\item how can we investigate, if the model is trustworthy?
+		\end{itemize}
+	}
 	\centering
 	% 	\begin{block}{Data and Preprocessing}
 	% 		\vfill
@@ -145,9 +200,7 @@
 	% 		\end{itemize}
 	% 	\end{block}
 	\begin{figure}
-		\begin{tikzpicture}
-			\node [draw, rectangle, fill=white, drop shadow, inner sep=0] (cnn) {\includegraphics[angle=90, width=\textwidth]{tikz/standalone/cnn.tikz/cnn.pdf}};
-		\end{tikzpicture}
+		\dropfigure[angle=90, width=\textwidth]{tikz/standalone/cnn.tikz/cnn.pdf}
 	\end{figure}
 	\visible<2->{
 		\begin{columns}[T, onlytextwidth]
@@ -188,14 +241,25 @@
 \end{frame}
 
 \begin{frame}{Attribution Maps: What did the network look at?}
+	\note{
+		\begin{itemize}
+			\item field of Explainble AI provided methods to investigate Deep Neural Networks
+			\item we will focus on group of attribution methods
+			\item attribute change in model output...
+			\item ...to relative change in model input
+			\item relative to baseline input image
+			\item results in heatmap, which regions are considered to be relevant by neural network
+		\end{itemize}
+
+	}
+	\centering
 	\begin{figure}
-		\centering
-		\begin{tikzpicture}[>=Stealth]
-			\node [draw, rectangle, fill=white, drop shadow, inner sep=0] (cnn) {\includegraphics[angle=90, width=\textwidth]{tikz/standalone/cnn.tikz/cnn.pdf}};
+		\begin{tikzpicture}[>=Stealth, baseline]
+			\node [dropfigure] (cnn) {\includegraphics[angle=90, width=\textwidth]{tikz/standalone/cnn.tikz/cnn.pdf}};
 			\visible<2->{
 				\node[draw=red, ultra thick, rectangle, anchor=east, minimum width=1.5cm, minimum height=3cm] (outbox) at (cnn.east) {};
 				%\draw[draw=red, ->, ultra thick] (outbox.south) -- ++ (0, -1) --++ (-10,0) node[midway, below] {\emph{Relevance Propagation}} node[at end] (backprop){};
-				\node[below=of cnn.south west, anchor=north west, draw, rectangle, inner sep=0, drop shadow, label=below:attribution map] (attribution) {\includegraphics[height=2cm]{figures/grad-cam-map.png}};
+				\node[below=of cnn.south west, anchor=north west, draw, rectangle, inner sep=0, drop shadow, label={[inner sep=0]below:attribution}] (attribution) {\includegraphics[height=2cm]{figures/grad-cam-map.png}};
 
 
 				%\path (baseline) -- node[pos=0.9, circle, fill=red] (router) {} (attribution);
@@ -216,6 +280,13 @@
 
 
 \begin{frame}[plain]
+	\note{
+		\begin{itemize}
+			\item literature review
+			\item a lot of different methods for attribution available
+			\item no consensus, which method should be used
+		\end{itemize}
+	}
 	%{eXplainable AI and Feature Attribution Methods}
 	% - explain overall principle of feature attribution methods
 	% - plethora of feature attribution methods
@@ -229,17 +300,40 @@
 \end{frame}
 
 \begin{frame}[plain]
+	\note{
+		\begin{itemize}
+			\item similar regions highlighted by attribution methods
+			\item differences in resolution and focus of the attribution
+			\item visual inspection alone is not sufficient to reveal major differences
+		\end{itemize}
+	}
 	\centering
 	\dropfigure[width=0.85\textwidth]{figures/3672-relevance-maps.png}
 \end{frame}
 
 \begin{frame}{Total Relevance per ROI}
+	\note{
+		\begin{itemize}
+			\item Regions of Interests as defined by Automated Anatomical Labeling Atlas
+			\item Hippocampus shows up
+			\item but need to normalize by ROI size
+		\end{itemize}
+	}
 	\input{tables/rois_total.tex}
 \end{frame}
 
 \begin{frame}{Mean Relevance per ROI}
+	\note{
+		\begin{itemize}
+			\item normalizing by ROI size
+			\item Hippocampus now most relevant
+			\item Until now, just tried to confirm our bias
+			\item But what, if the explanation is wrong and the model doesn't really use the hippocampus at all?
+		\end{itemize}
+	}
 	\input{tables/rois_mean.tex}
 \end{frame}
+
 \begin{frame}[plain]
 	\begin{center}
 		\begin{figure}
@@ -254,6 +348,18 @@
 
 
 \begin{frame}[plain]{Perturbation Tests: Insertion and Deletion \cite{petsiuk_rise_2018}}
+	\note{
+		\begin{itemize}
+			\item perturbation test proposed in the literature to evaluate fidelity
+			\item start with trained model and AD sample
+			\item forward pass through model to get prediction
+			\item also compute attribution map
+			\item use attribution map to perturb input image
+			\item mask voxels in descending order of their relevance, starting with most relevant voxels
+			\item hippocampus masked, expect predicted probabilit to decrease
+			\item repeat until input image is completely masked
+		\end{itemize}
+	}
 	% 	% introduce perturbation tests
 	\begin{figure}
 		%\resizebox{0.5\textwidth}{!}{
@@ -265,6 +371,17 @@
 
 
 \begin{frame}[plain]{}
+	\note{
+		\begin{itemize}
+			\item null image popular choice for attribution baseline and perturbation target
+			\item attribution maps fail to decrease predicted probability for Alzheimer’s disease
+			\item hypothesis: null image is unnatural image of maximum atrophy
+			\item Model just associates weaker signal with atrophy and Alzheimer’s disease
+			\item compared to null image, every other image has more signals
+			\item also explains some weird observations regarding sign of the relevance
+			\item so, what should actually be used as baseline?
+		\end{itemize}
+	}
 	\begin{figure}
 		\begin{subfigure}{0.8\textwidth}
 			\centering
@@ -346,9 +463,6 @@
 			\item<4-> Attribution Maps \emph{need interpretation} to actually explain anything.
 		\end{enumerate}
 	\end{block}
-
-	\visible<5->{
-	}
 \end{frame}
 
 \begin{frame}{Meet the Team}
